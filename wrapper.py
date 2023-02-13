@@ -9,8 +9,8 @@ import datetime
 from datetime import date
 import dateparser
 
-from option import Option
-from utils import validate_date_format,validate_req,validate_ticker_format,validate_interval
+from .option import Option
+from .utils import validate_date_format,validate_req,validate_ticker_format,validate_interval
 
 class ThetaWrapper(ThetaClient):
     """

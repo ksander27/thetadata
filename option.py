@@ -1,4 +1,4 @@
-from utils import validate_date_format,validate_option_right,validate_option_strike,validate_ticker_format
+from .utils import validate_date_format,validate_option_right,validate_option_strike,validate_ticker_format
 
 class Option:
     def __init__(self, ticker: str, right: str, strike: float, expiry: str):
