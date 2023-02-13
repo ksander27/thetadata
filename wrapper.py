@@ -206,7 +206,6 @@ class ThetaWrapper(ThetaClient):
             _end: date = self._get_end(end)
             _exp: date = dateparser.parse(option.exp).date()
             _right: str = option.right.lower()[0]
-            _req = self._get_req(req)
             
             # Retrieve option data from API
             with self.connect():
@@ -266,7 +265,7 @@ class ThetaWrapper(ThetaClient):
         while not nyse.valid_days(start_date=end, end_date=end).size >0:
             end -= datetime.timedelta(days=1)
 
-        return end
+        return end.date.fromisoformat(str(end))
 
     def _validate_and_handle_error(self, ticker: Optional[str], start: str, req: str, end: Optional[str] = None, interval: Optional[int] = None, greek: Optional[int] = None) -> None:
             """
