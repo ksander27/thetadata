@@ -2,7 +2,7 @@ from thetadata import ThetaClient, DateRange, StockReqType, OptionReqType, Optio
 import pandas as pd 
 import pandas_market_calendars as mcal
 import logging
-from typing import List, Tuple, Optional
+from typing import Optional
 
 import re
 import datetime
