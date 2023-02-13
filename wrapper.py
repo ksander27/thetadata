@@ -265,7 +265,7 @@ class ThetaWrapper(ThetaClient):
         while not nyse.valid_days(start_date=end, end_date=end).size >0:
             end -= datetime.timedelta(days=1)
 
-        return end.fromisoformat(str(end))
+        return datetime.date.fromisoformat(str(end))
 
     def _validate_and_handle_error(self, ticker: Optional[str], start: str, req: str, end: Optional[str] = None, interval: Optional[int] = None, greek: Optional[int] = None) -> None:
             """
