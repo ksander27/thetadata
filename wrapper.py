@@ -3,8 +3,6 @@ import pandas as pd
 import pandas_market_calendars as mcal
 import logging
 from typing import Optional
-
-import re
 import datetime
 from datetime import date
 import dateparser
