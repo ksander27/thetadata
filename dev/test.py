@@ -1,7 +1,6 @@
+from .wrapper import MyWrapper
 import unittest
 from unittest.mock import Mock
-
-from .wrapper import MyWrapper
 
 # Define the test case class
 class TestMyWrapper(unittest.TestCase):
@@ -13,67 +12,72 @@ class TestMyWrapper(unittest.TestCase):
         self.assertIsNone(wrapper.sec_type)
         self.assertIsNone(wrapper.req_type)
         
+        self.assertIsNone(wrapper.url)
+        self.assertIsNone(wrapper.params)
+        self.assertIsNone(wrapper.request)
+        self.assertIsNone(wrapper.header)
+        self.assertIsNone(wrapper.response)
+        
+        self.assertIsNone(wrapper.format)
+        
 
     def test_parse_header(self):
-        # Test with valid response
-        resp = Mock()
-        resp.ok = True
-        resp.json.return_value = {"response": [1, 2, 3]
-                                  , "header":{"error_type":'null'
-                                             ,"error_msg":'null'}
-                                 }
         wrapper = MyWrapper()
-        data = wrapper._parse_header(resp)
+        
+        # Test with valid response
+        request = Mock()
+        request.ok = True
+        request.json.return_value = {"response": [1, 2, 3], "header":{"error_type":'null',"error_msg":'null'}}
+
+        wrapper.request = request
+        data = wrapper._parse_header()
         self.assertTrue(data)
 
         # Test with invalid status code
-        resp = Mock()
-        resp.ok = False
+        request.ok = False
+        wrapper.request = request
         with self.assertRaises(Exception):
-            wrapper._parse_header(resp)
+            wrapper._parse_header()
 
         # Test with empty response
-        resp = Mock()
-        resp.ok = True
-        resp.json.return_value = None
+        request.ok = True
+        request.json.return_value = None
+        wrapper.request = request
         with self.assertRaises(Exception):
-            wrapper._parse_header(resp)
+            wrapper._parse_header()
 
             
     def test_parse_response(self):
         wrapper = MyWrapper()
         # Test with valid response
-        resp = Mock()
-        resp.ok = True
-        resp.json.return_value = {"response": [[1, 2, 3]]
-                                  , "header":{"error_type":'null'
-                                             ,"error_msg":'null'
-                                             ,"format":["a","b","c"]}
-                                 }
-        data = wrapper._parse_response(resp)
+        request = Mock()
+        request.ok = True
+        
+        header = {"error_type":'null',"error_msg":'null' ,"format":["a","b","c"]}
+        request.json.return_value = {"response": [[1, 2, 3]],"header":header}
+                                      
+        wrapper.request = request
+        wrapper.header = header
+        data = wrapper._parse_response()
         self.assertListEqual(data, [{"a":1,"b":2,"c":3}])
         
         # Test with response content is not a list
-        resp = Mock()
-        resp.ok = True
-        resp.json.return_value = {"response": 0
-                                  , "header":{"error_type":'null'
-                                             ,"error_msg":'null'
-                                             ,"format":None}
-                                 }
+        header = {"error_type":'null',"error_msg":'null',"format":None} 
+        request.json.return_value = {"response": 0 ,"header":header}
+                       
+        wrapper.request = request
+        wrapper.header = header
         with self.assertRaises(Exception):
-            wrapper._parse_response(resp)
+            wrapper._parse_response()
             
         # Test with list response content is empty
-        resp = Mock()
-        resp.ok = True
-        resp.json.return_value = {"response": []
-                                  , "header":{"error_type":'null'
-                                             ,"error_msg":'null'
-                                             ,"format":None}
-                                 }
+        header = {"error_type":'null',"error_msg":'null',"format":None}
+        request.json.return_value = {"response": [] ,"header":header}
+                                     
+        wrapper.request = request
+        wrapper.header = header
         with self.assertRaises(Exception):
-            wrapper._parse_response(resp)
+            wrapper._parse_response()
 
         
     def test_get_list_roots(self):

@@ -4,8 +4,6 @@ import requests as rq
 from .utils import _format_date,_format_right,_format_strike,_isDateRangeValid
 from .utils import RootOrExpirationError,ResponseFormatError
 
-    
-
 
 class MyWrapper:
     def __init__(self):
@@ -19,13 +17,18 @@ class MyWrapper:
         
         self.url = None
         self.params = None
+        self.request = None
+        self.header = None
+        self.response = None
+        
+        self.format = None
+        
 
-    def _parse_header(self, resp: rq.Response) -> Union[List, int]:
+
+    def _parse_header(self) -> Union[List, int]:
         """
         This function checks the header of the response to see if there is an error.
 
-        Args:
-        resp: the response object from requests
 
         Returns:
         True: if there is no error
@@ -35,14 +38,14 @@ class MyWrapper:
         RootOrExpirationError: if there is a non-existent root symbol or expiration
         ResponseFormatError: if there is an error in the response
 
-        """
-        if not resp.ok:
-            raise Exception(f"HTTP error {resp.status_code}")
+        """        
+        if not self.request.ok :
+            raise Exception(f"HTTP error {self.request.status_code}")
 
-        _ = resp.json()
-        header = _.get('header')
-        err_type = header.get('error_type')
-        err_msg = header.get('error_msg')
+        _ = self.request.json()
+        self.header = _.get('header')
+        err_type = self.header.get('error_type')
+        err_msg = self.header.get('error_msg')
 
         if err_type != "null":
             if "Nonexistent root symbol or expiration" in err_msg:
@@ -54,14 +57,11 @@ class MyWrapper:
         return True
 
 
-    def _parse_response(self, resp):
+    def _parse_response(self):
         """
         This function checks the response to ensure that the format is valid and returns a list
         or a list of dictionaries, using the format from the header or in some cases, the req_type
         from the query.
-
-        Args:
-        resp: the response object from requests
 
         Returns:
         A list or a list of dictionaries
@@ -70,21 +70,21 @@ class MyWrapper:
         ResponseFormatError: if there is an error in the response
 
         """
-        _ = resp.json()
-        response = _.get('response')
-        _format = _.get('header').get('format')
+        _ = self.request.json()
+        self.response = _.get('response')
+        self.format = self.header.get('format')
 
-        if response is None:
+        if not self.response:
             raise ResponseFormatError("Response content is empty")
-        elif not isinstance(response, list):
-            raise ResponseFormatError(f"Response is {type(response)} - should be list")
-        elif len(response) == 0:
+        elif not isinstance(self.response, list):
+            raise ResponseFormatError(f"Response is {type(self.response)} - should be list")
+        elif len(self.response) == 0:
             raise ResponseFormatError(f"Response is [] - check query")
 
-        if _format is None:
-            return [{self.req_type: element} for element in response]
+        if self.format is None:
+            return [{self.req_type: element} for element in self.response]
         else:
-            return [{key: element[idx] for idx, key in enumerate(_format)} for element in response]
+            return [{key: element[idx] for idx, key in enumerate(self.format)} for element in self.response]
         
 
     def _get_data(self) -> List[Dict[str, Any]]:
@@ -98,9 +98,10 @@ class MyWrapper:
             ResponseFormatError: If the response format is invalid or the response content is empty.
             Exception: If the HTTP response status code is not successful.
         """
-        resp = rq.get(self.url, params=self.params)
-        if self._parse_header(resp):
-            data = self._parse_response(resp)
+        
+        self.request = rq.get(self.url, params=self.params) 
+        if self._parse_header():
+            data = self._parse_response()
             return data
 
 
@@ -120,7 +121,8 @@ class MyWrapper:
             RootOrExpirationError: If the response data contains an integer representing a root or expiration error.
         """
         self.call_type = "list"
-        self.url = f"{self.base_url}/{self.call_type}/roots"
+        self.req_type = "roots"
+        self.url = f"{self.base_url}/{self.call_type}/{self.req_type}"
 
         if sec == "opt":
             self.params = {"sec":"OPTION"}
@@ -155,8 +157,6 @@ class MyWrapper:
         self.url = f"{self.base_url}/{self.call_type}/{self.req_type}"
         self.params = {"exp": _exp, "root": root}
         return self._get_data()
-
-
 
     def get_list_expirations(self, root: str) -> List[str]:
         """
