@@ -2,4 +2,4 @@ pandas
 jupyter
 dateparser
 thetadata
-pandas_market_calendars
+requests
