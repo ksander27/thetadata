@@ -13,6 +13,9 @@ class StrikeError(Exception):
 class ResponseFormatError(Exception):
     pass
 
+class IVLError(Exception):
+    pass
+
 def _format_date(date: str) -> str:
     """
     Helper function to format date as "YYYYMMDD" if not already formatted.
@@ -47,7 +50,13 @@ def _format_right(right):
     else:
         raise RightError("Right must be str - Call or Put.")
         
-        
+def _format_ivl(ivl):
+    if not isinstance(ivl,int):
+        raise IVLError("Interval must be an integer")
+    if ivl < 0:
+        raise StrikeError("Interval must be non-negative")
+    return int(ivl*1000)
+
 def _format_strike(strike):
     if not isinstance(strike, int):
         raise StrikeError("Strike price must be an integer")
