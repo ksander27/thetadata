@@ -179,12 +179,12 @@ class MyWrapper:
         self.req_type = "roots"
         self.url = f"{self.base_url}/{self.call_type}/{self.req_type}"
 
-        if sec == "opt":
+        if "opt" in sec.lower():
             self.params = {"sec":"OPTION"}
-        elif sec == "stk":
+        elif "stk" in sec.lower():
             self.params = {"sec":"STOCK"}
         else:
-            raise ValueError("Security must be OPTION or STOCK.")
+            raise ValueError("Security must be option or stock.")
         
         return self._get_data()
 
