@@ -3,6 +3,9 @@ from typing import List
 from .utils import _format_date,_format_ivl,_isDateRangeValid
 from .wrapper import MyWrapper
 
+class OptionError(Exception):
+    pass
+
 class RightError(Exception):
     pass
 
@@ -23,6 +26,7 @@ class Option(MyWrapper):
         self._right = self._format_right()
         self._strike = self._format_strike()
 
+    # Helper
     def _format_right(self):
         if self.right is None:
             return None
@@ -57,6 +61,57 @@ class Option(MyWrapper):
         else:    
             return False
         
+    def _get_hist(self,start_date,end_date,ivl):
+        self.call_type = "hist"
+        
+        _start_date = _format_date(start_date)
+        _end_date = _format_date(end_date)
+        _ivl = _format_ivl(ivl)
+
+        if not self._isOptionValid():
+            raise OptionError("The parameters for the Option contract are not valid")
+        if not  self._isOptionRangeValid():
+            raise OptionError("The start_date end_date and expiry are not valid")
+        
+        self.url = f"{self.base_url}/{self.call_type}/{self.sec_type}/{self.req_type}"
+        self.params = {
+            "start_date":_start_date
+            ,"end_date":_end_date
+            ,"root":self.root
+            ,"ivl": _ivl
+            ,"exp":self._exp
+            ,"right":self._right
+            ,"strike":self._strike
+        }
+
+        return self._get_data()
+        
+            
+    def _get_at_time_option(self,start_date,end_date,ivl):
+        self.call_type = "at_time"
+        
+        _start_date = _format_date(start_date)
+        _end_date = _format_date(end_date)
+        _ivl = _format_ivl(ivl)
+        
+        if not self._isOptionValid():
+            raise OptionError("The parameters for the Option contract are not valid")
+        if not  self._isOptionRangeValid():
+            raise OptionError("The start_date end_date and expiry are not valid")
+    
+        self.url = f"{self.base_url}/{self.call_type}/{self.sec_type}/{self.req_type}"
+        self.params = {
+            "start_date":_start_date
+            ,"end_date":_end_date
+            ,"root":self.root
+            ,"ivl": _ivl
+            ,"exp":self._exp
+            ,"right":self._right
+            ,"strike":self._strike
+        }
+        return self._get_data()
+    
+    # List endpoints
     def get_list_roots(self) -> List[str]:
         """
         Retrieves all roots for the specified security.
@@ -115,29 +170,6 @@ class Option(MyWrapper):
         self.url = f"{self.base_url}/{self.call_type}/{self.req_type}"
         self.params = {"root": self.root}
         return self._get_data()
-    
-    def _get_hist(self,start_date,end_date,ivl):
-        self.call_type = "hist"
-        
-        _start_date = _format_date(start_date)
-        _end_date = _format_date(end_date)
-        _ivl = _format_ivl(ivl)
-        
-        if self._isOptionValid() and self._isOptionRangeValid():
-            self.url = f"{self.base_url}/{self.call_type}/{self.sec_type}/{self.req_type}"
-            self.params = {
-                "start_date":_start_date
-                ,"end_date":_end_date
-                ,"root":self.root
-                ,"ivl": _ivl
-                ,"exp":self._exp
-                ,"right":self._right
-                ,"strike":self._strike
-            }
-
-            return self._get_data()
-        
-
      
     # Hist endpoints
     def get_hist_eod(self,start_date,end_date):
@@ -207,6 +239,11 @@ class Option(MyWrapper):
     def get_hist_eod_quote_greeks(self,start_date,end_date,ivl):
         self.req_type = "eod_quote_greeks"
         return self._get_hist(start_date,end_date,ivl)
+    
+    # At time endpoints
+    def get_at_time_quote(self,start_date,end_date,ivl):
+        self.req_type = "quote"
+        return self._get_at_time(start_date,end_date,ivl)
     
 
 
