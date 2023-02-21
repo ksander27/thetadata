@@ -26,6 +26,13 @@ class Option(MyWrapper):
         self._right = self._format_right()
         self._strike = self._format_strike()
 
+    def __str__(self):
+        if self._isOptionValid():
+            return f"{self.root}_{self.exp}_{self.right}_{self.strike}"
+        else:
+            return None
+
+
     # Helper
     def _format_right(self):
         if self.right is None:
@@ -236,9 +243,9 @@ class Option(MyWrapper):
         self.req_type = "trade_quote"
         return self._get_hist(start_date,end_date,ivl)
     
-    def get_hist_eod_quote_greeks(self,start_date,end_date,ivl):
+    def get_hist_eod_quote_greeks(self,start_date,end_date):
         self.req_type = "eod_quote_greeks"
-        return self._get_hist(start_date,end_date,ivl)
+        return self._get_hist(start_date,end_date)
     
     # At time endpoints
     def get_at_time_quote(self,start_date,end_date,ivl):
