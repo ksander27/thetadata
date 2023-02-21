@@ -1,14 +1,7 @@
 import datetime as dt
 import dateparser
 
-class RootOrExpirationError(Exception):
-    pass
 
-class RightError(Exception):
-    pass
-
-class StrikeError(Exception):
-    pass
 
 class ResponseFormatError(Exception):
     pass
@@ -38,34 +31,15 @@ def _format_date(date: str) -> str:
         else:
             return dt.datetime.strftime(_date, "%Y%m%d")
 
-
-def _format_right(right):
-    if isinstance(right,str):
-        if "C" in right.upper():
-            return "C"
-        elif "P" in right.upper():
-            return "P"
-        else:
-            raise RightError("Right must be str - Call or Put.")
+def _isDateRangeValid(start_date,end_date):
+    if not dt.datetime.strptime(start_date,"%Y%m%d") <= dt.datetime.strptime(end_date,"%Y%m%d"):
+        raise ValueError("end_date must be greater than start_date")
     else:
-        raise RightError("Right must be str - Call or Put.")
-        
+        return True
+    
 def _format_ivl(ivl):
     if not isinstance(ivl,int):
         raise IVLError("Interval must be an integer")
     if ivl < 0:
-        raise StrikeError("Interval must be non-negative")
+        raise IVLError("Interval must be non-negative")
     return int(ivl*1000)
-
-def _format_strike(strike):
-    if not isinstance(strike, int):
-        raise StrikeError("Strike price must be an integer")
-    if strike < 0:
-        raise StrikeError("Strike price must be non-negative")
-    return int(strike*1000)
-
-def _isDateRangeValid(start_date,end_date):
-    if not dt.datetime.strptime(start_date,"%Y%m%d") < dt.datetime.strptime(end_date,"%Y%m%d"):
-        raise ValueError("end_date must be greater than start_date")
-    else:
-        return True
