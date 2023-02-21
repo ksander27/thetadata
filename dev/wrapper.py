@@ -165,7 +165,7 @@ class MyWrapper:
         Retrieves all roots for the specified security.
 
         Args:
-            sec: A string representing the security to retrieve roots for. Must be either 'opt' or 'stk'.
+            sec: A string representing the security to retrieve roots for. Must be either 'option' or 'stock'.
         
         Returns:
             A list of strings containing all roots for the specified security.
