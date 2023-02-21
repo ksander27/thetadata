@@ -1,7 +1,10 @@
 from typing import Dict,Any,Union,List
 import requests as rq
 
-from .utils import RootOrExpirationError,ResponseFormatError
+from .utils import ResponseFormatError
+
+class RootOrExpirationError(Exception):
+    pass
 
 class MyWrapper:
     def __init__(self):
@@ -46,9 +49,7 @@ class MyWrapper:
 
         if err_type != "null":
             if "Nonexistent root symbol or expiration" in err_msg:
-                raise RootOrExpirationError("Nonexistent root symbol or expiration")
-            elif "No data for contract" in err_msg:
-                raise ResponseFormatError("No data for contract")
+                raise RootOrExpirationError(err_msg)
             else:
                 raise ResponseFormatError(err_msg)
         return True
@@ -100,3 +101,35 @@ class MyWrapper:
         if self._parse_header():
             data = self._parse_response()
             return data
+            
+    # def _get_at_time_option(self,start_date,end_date,ivl,root,exp,right,strike):
+    #         self.call_type = "at_time"
+    #         self.sec_type = "option"
+            
+
+    #         _start_date = _format_date(start_date)
+    #         _end_date = _format_date(end_date)
+    #         _ivl = _format_ivl(ivl)
+    #         _exp = _format_date(exp)
+    #         _right = _format_right(right)
+    #         _strike = _format_strike(strike)
+            
+    #         if _isDateRangeValid(_start_date,_end_date):
+    #             self.url = f"{self.base_url}/{self.call_type}/{self.sec_type}/{self.req_type}"
+    #             self.params = {
+    #                 "start_date":_start_date
+    #                 ,"end_date":_end_date
+    #                 ,"root":root
+    #                 ,"ivl": _ivl
+    #                 ,"exp":_exp
+    #                 ,"right":_right
+    #                 ,"strike":_strike
+    #             }
+
+    #             return self._get_data()
+    
+            
+    #     # At time endpoints
+    #     def get_at_time_option_quote(self,start_date,end_date,ivl,root,exp,right,strike):
+    #         self.req_type = "quote"
+    #         return self._get_at_time_option(start_date,end_date,ivl,root,exp,right,strike)
