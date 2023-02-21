@@ -70,7 +70,7 @@ class Option(MyWrapper):
 
         if not self._isOptionValid():
             raise OptionError("The parameters for the Option contract are not valid")
-        if not  self._isOptionRangeValid():
+        if not  self._isOptionRangeValid(_start_date,_end_date):
             raise OptionError("The start_date end_date and expiry are not valid")
         
         self.url = f"{self.base_url}/{self.call_type}/{self.sec_type}/{self.req_type}"
@@ -96,7 +96,7 @@ class Option(MyWrapper):
         
         if not self._isOptionValid():
             raise OptionError("The parameters for the Option contract are not valid")
-        if not  self._isOptionRangeValid():
+        if not  self._isOptionRangeValid(_start_date,_end_date):
             raise OptionError("The start_date end_date and expiry are not valid")
     
         self.url = f"{self.base_url}/{self.call_type}/{self.sec_type}/{self.req_type}"
@@ -179,7 +179,7 @@ class Option(MyWrapper):
         _start_date = _format_date(start_date)
         _end_date = _format_date(end_date)
         
-        if self._isOptionValid() and self._isOptionRangeValid():
+        if self._isOptionValid() and self._isOptionRangeValid(_start_date,_end_date):
             self.url = f"{self.base_url}/{self.call_type}/{self.sec_type}/{self.req_type}"
             self.params = {
                 "start_date":_start_date
