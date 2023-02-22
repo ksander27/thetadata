@@ -22,9 +22,9 @@ class Option(MyWrapper):
         self.right = right
         self.strike = strike
 
-        self._exp = _format_date(exp)
-        self._right = self._format_right()
-        self._strike = self._format_strike()
+        self._exp = _format_date(exp) if exp else None
+        self._right = self._format_right() if right else None
+        self._strike = self._format_strike() if strike else None
 
     def __str__(self):
         if self._isOptionValid():
