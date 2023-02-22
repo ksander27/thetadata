@@ -131,7 +131,7 @@ class Option(MyWrapper):
             Exception: If the server returns an error or the response content is empty.
             RootOrExpirationError: If the response data contains an integer representing a root or expiration error.
         """
-
+        self.call_type = "list"
         self.req_type = "roots"
         self.url = f"{self.base_url}/{self.call_type}/{self.req_type}"
         self.params = {"sec":self.sec_type.upper()}
