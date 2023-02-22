@@ -32,7 +32,6 @@ class Option(MyWrapper):
         else:
             return None
 
-
     # Helper
     def _format_right(self):
         if self.right is None:
@@ -90,9 +89,7 @@ class Option(MyWrapper):
             ,"right":self._right
             ,"strike":self._strike
         }
-
         return self._get_data()
-        
             
     def _get_at_time_option(self,start_date,end_date,ivl):
         self.call_type = "at_time"
@@ -244,8 +241,9 @@ class Option(MyWrapper):
         return self._get_hist(start_date,end_date,ivl)
     
     def get_hist_eod_quote_greeks(self,start_date,end_date):
+        ivl = 3600 # unnecessary params - a bit hacky but it's to avoid a fail on _get_hist if ivl=None
         self.req_type = "eod_quote_greeks"
-        return self._get_hist(start_date,end_date)
+        return self._get_hist(start_date,end_date,ivl)
     
     # At time endpoints
     def get_at_time_quote(self,start_date,end_date,ivl):
