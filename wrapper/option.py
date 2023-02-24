@@ -199,11 +199,7 @@ class Option(MyWrapper):
     def get_hist_quote(self,start_date,end_date,ivl):
         self.req_type = "quote"
         return self._get_hist(start_date,end_date,ivl)
-        
-    def get_hist_ohlc(self,start_date,end_date,ivl):
-        self.req_type = "ohlc"
-        return self._get_hist(start_date,end_date,ivl)
-        
+                
     def get_hist_trade(self,start_date,end_date,ivl):
         self.req_type = "trade"
         return self._get_hist(start_date,end_date,ivl)
@@ -234,6 +230,11 @@ class Option(MyWrapper):
     
     def get_hist_trade_quote(self,start_date,end_date,ivl):
         self.req_type = "trade_quote"
+        return self._get_hist(start_date,end_date,ivl)
+    
+    def get_hist_ohlc(self,start_date,end_date):
+        ivl = 3600 # unnecessary params - a bit hacky but it's to avoid a fail on _get_hist if ivl=None
+        self.req_type = "ohlc"
         return self._get_hist(start_date,end_date,ivl)
 
     def get_hist_open_interest(self,start_date,end_date,root):
