@@ -237,10 +237,10 @@ class Option(MyWrapper):
         self.req_type = "ohlc"
         return self._get_hist(start_date,end_date,ivl)
 
-    def get_hist_open_interest(self,start_date,end_date,root):
+    def get_hist_open_interest(self,start_date,end_date):
         ivl = 3600 # unnecessary params - a bit hacky but it's to avoid a fail on _get_hist if ivl=None
         self.req_type = "open_interest"
-        return self._get_hist(start_date,end_date,ivl,root)
+        return self._get_hist(start_date,end_date,ivl)
        
     def get_hist_eod_quote_greeks(self,start_date,end_date):
         ivl = 3600 # unnecessary params - a bit hacky but it's to avoid a fail on _get_hist if ivl=None
@@ -248,29 +248,56 @@ class Option(MyWrapper):
         return self._get_hist(start_date,end_date,ivl)
     
     # At time endpoints
-    def get_at_time_quote(self,start_date,end_date,ivl):
+    def get_at_time_quote(self,start_date,end_date,s_of_day):
         self.req_type = "quote"
-        return self._get_at_time(start_date,end_date,ivl)
+        return self._get_at_time(start_date,end_date,s_of_day)
     
-    def get_at_time_trade(self,start_date,end_date,ivl):
+    def get_at_time_trade(self,start_date,end_date,s_of_day):
         self.req_type = "trade"
-        return self._get_at_time(start_date,end_date,ivl)
+        return self._get_at_time(start_date,end_date,s_of_day)
     
-    def get_at_time_implied_volatility(self,start_date,end_date,ivl):
+    def get_at_time_implied_volatility(self,start_date,end_date,s_of_day):
         self.req_type = "implied_volatility"
-        return self._get_at_time(start_date,end_date,ivl)
+        return self._get_at_time(start_date,end_date,s_of_day)
     
-    def get_at_time_implied_volatility_verbose(self,start_date,end_date,ivl):
+    def get_at_time_implied_volatility_verbose(self,start_date,end_date,s_of_day):
         self.req_type = "implied_volatility_verbose"
-        return self._get_at_time(start_date,end_date,ivl)
+        return self._get_at_time(start_date,end_date,s_of_day)
     
-    def get_at_time_greeks(self,start_date,end_date,ivl):
+    def get_at_time_greeks(self,start_date,end_date,s_of_day):
         self.req_type = "greeks"
-        return self._get_at_time(start_date,end_date,ivl)
+        return self._get_at_time(start_date,end_date,s_of_day)
     
-    def get_at_time_trade_greeks(self,start_date,end_date,ivl):
+    def get_at_time_trade_greeks(self,start_date,end_date,s_of_day):
         self.req_type = "trade_greeks"
-        return self._get_at_time(start_date,end_date,ivl)
+        return self._get_at_time(start_date,end_date,s_of_day)
+    
+    def get_at_time_greeks_second_order(self,start_date,end_date,s_of_day):
+        self.req_type = "greeks_second_order"
+        return self._get_at_time(start_date,end_date,s_of_day)
+    
+    def get_at_time_greeks_third_order(self,start_date,end_date,s_of_day):
+        self.req_type = "greeks_third_order"
+        return self._get_at_time(start_date,end_date,s_of_day)
+    
+    def get_at_time_trade_quote(self,start_date,end_date,s_of_day):
+        self.req_type = "trade_quote"
+        return self._get_at_time(start_date,end_date,s_of_day)
+    
+    def get_at_time_ohlc(self,start_date,end_date,s_of_day):
+        #ivl = 3600 # unnecessary params - a bit hacky but it's to avoid a fail on _get_hist if ivl=None
+        self.req_type = "ohlc"
+        return self._get_at_time(start_date,end_date,s_of_day)
+
+    def get_at_time_open_interest(self,start_date,end_date,s_of_day):
+        #ivl = 3600 # unnecessary params - a bit hacky but it's to avoid a fail on _get_hist if ivl=None
+        self.req_type = "open_interest"
+        return self._get_at_time(start_date,end_date,s_of_day)
+       
+    def get_at_time_eod_quote_greeks(self,start_date,end_date,s_of_day):
+        #ivl = 3600 # unnecessary params - a bit hacky but it's to avoid a fail on _get_hist if ivl=None
+        self.req_type = "eod_quote_greeks"
+        return self._get_at_time(start_date,end_date,s_of_day)
     
 
 
