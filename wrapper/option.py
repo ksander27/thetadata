@@ -252,6 +252,26 @@ class Option(MyWrapper):
         self.req_type = "quote"
         return self._get_at_time(start_date,end_date,ivl)
     
+    def get_at_time_trade(self,start_date,end_date,ivl):
+        self.req_type = "trade"
+        return self._get_at_time(start_date,end_date,ivl)
+    
+    def get_at_time_implied_volatility(self,start_date,end_date,ivl):
+        self.req_type = "implied_volatility"
+        return self._get_at_time(start_date,end_date,ivl)
+    
+    def get_at_time_implied_volatility_verbose(self,start_date,end_date,ivl):
+        self.req_type = "implied_volatility_verbose"
+        return self._get_at_time(start_date,end_date,ivl)
+    
+    def get_at_time_greeks(self,start_date,end_date,ivl):
+        self.req_type = "greeks"
+        return self._get_at_time(start_date,end_date,ivl)
+    
+    def get_at_time_trade_greeks(self,start_date,end_date,ivl):
+        self.req_type = "trade_greeks"
+        return self._get_at_time(start_date,end_date,ivl)
+    
 
 
 
