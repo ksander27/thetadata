@@ -27,3 +27,36 @@ class Stock(MyWrapper):
         self.params = {"sec":self.sec_type.upper()}
 
         return self._get_data()
+    
+    def _get_hist(self,start_date,end_date,ivl):
+        self.call_type = "hist"
+        
+        _start_date = _format_date(start_date)
+        _end_date = _format_date(end_date)
+        _ivl = _format_ivl(ivl)
+        
+        self.url = f"{self.base_url}/{self.call_type}/{self.sec_type}/{self.req_type}"
+        self.params = {
+            "start_date":_start_date
+            ,"end_date":_end_date
+            ,"root":self.root
+            ,"ivl": _ivl
+        }
+        return self._get_data()
+    
+    def _get_at_time(self,start_date,end_date,ivl):
+        self.call_type = "at_time"
+        
+        _start_date = _format_date(start_date)
+        _end_date = _format_date(end_date)
+        _ivl = _format_ivl(ivl)
+        
+    
+        self.url = f"{self.base_url}/{self.call_type}/{self.sec_type}/{self.req_type}"
+        self.params = {
+            "start_date":_start_date
+            ,"end_date":_end_date
+            ,"root":self.root
+            ,"ivl": _ivl
+        }
+        return self._get_data()
