@@ -91,7 +91,7 @@ class Option(MyWrapper):
         }
         return self._get_data()
             
-    def _get_at_time_option(self,start_date,end_date,ivl):
+    def _get_at_time(self,start_date,end_date,ivl):
         self.call_type = "at_time"
         
         _start_date = _format_date(start_date)
@@ -208,10 +208,6 @@ class Option(MyWrapper):
         self.req_type = "trade"
         return self._get_hist(start_date,end_date,ivl)
     
-    def get_hist_open_interest(self,start_date,end_date,ivl,root):
-        self.req_type = "open_interest"
-        return self._get_hist(start_date,end_date,ivl,root)
-    
     def get_hist_implied_volatility(self,start_date,end_date,ivl):
         self.req_type = "implied_volatility"
         return self._get_hist(start_date,end_date,ivl)
@@ -239,7 +235,12 @@ class Option(MyWrapper):
     def get_hist_trade_quote(self,start_date,end_date,ivl):
         self.req_type = "trade_quote"
         return self._get_hist(start_date,end_date,ivl)
-    
+
+    def get_hist_open_interest(self,start_date,end_date,root):
+        ivl = 3600 # unnecessary params - a bit hacky but it's to avoid a fail on _get_hist if ivl=None
+        self.req_type = "open_interest"
+        return self._get_hist(start_date,end_date,ivl,root)
+       
     def get_hist_eod_quote_greeks(self,start_date,end_date):
         ivl = 3600 # unnecessary params - a bit hacky but it's to avoid a fail on _get_hist if ivl=None
         self.req_type = "eod_quote_greeks"
