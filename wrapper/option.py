@@ -67,6 +67,13 @@ class Option(MyWrapper):
         else:    
             return False
         
+    # Call endpoint helpers
+    def _get_list_dates(self):
+        self.call_type = "list"
+        self.url = f"{self.base_url}/{self.call_type}/dates/{self.sec_type}/{self.req_type}"
+        self.params = {"root":self.root}
+        return self._get_data()
+        
     def _get_hist(self,start_date,end_date,ivl):
         self.call_type = "hist"
         
@@ -174,6 +181,19 @@ class Option(MyWrapper):
         self.url = f"{self.base_url}/{self.call_type}/{self.req_type}"
         self.params = {"root": self.root}
         return self._get_data()
+    
+    def get_list_expirations_trade(self) -> List[str]:
+        self.req_type = "trade"
+        return self._get_list_dates()
+    
+    def get_list_expirations_quote(self) -> List[str]:
+        self.req_type = "quote"
+        return self._get_list_dates()
+    
+    def get_list_expirations_implied_volatility(self) -> List[str]:
+        self.req_type = "implied_volatility"
+        return self._get_list_dates()
+
      
     # Hist endpoints
     def get_hist_eod(self,start_date,end_date):
@@ -285,18 +305,16 @@ class Option(MyWrapper):
         return self._get_at_time(start_date,end_date,s_of_day)
     
     def get_at_time_ohlc(self,start_date,end_date,s_of_day):
-        #ivl = 3600 # unnecessary params - a bit hacky but it's to avoid a fail on _get_hist if ivl=None
         self.req_type = "ohlc"
-        return self._get_at_time(start_date,end_date,s_of_day)
-
-    def get_at_time_open_interest(self,start_date,end_date,s_of_day):
-        #ivl = 3600 # unnecessary params - a bit hacky but it's to avoid a fail on _get_hist if ivl=None
-        self.req_type = "open_interest"
         return self._get_at_time(start_date,end_date,s_of_day)
        
     def get_at_time_eod_quote_greeks(self,start_date,end_date,s_of_day):
-        #ivl = 3600 # unnecessary params - a bit hacky but it's to avoid a fail on _get_hist if ivl=None
         self.req_type = "eod_quote_greeks"
+        return self._get_at_time(start_date,end_date,s_of_day)
+    
+    def get_at_time_open_interest(self,start_date,end_date,s_of_day):
+        #ivl = 3600 # unnecessary params - a bit hacky but it's to avoid a fail on _get_hist if ivl=None
+        self.req_type = "open_interest"
         return self._get_at_time(start_date,end_date,s_of_day)
     
 
