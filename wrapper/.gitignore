@@ -1,2 +1,4 @@
 test.py
-dockerbuild
+dockerfile
+entrypoint.sh
+run_jup.sh

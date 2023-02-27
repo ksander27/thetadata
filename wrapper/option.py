@@ -61,6 +61,12 @@ class Option(MyWrapper):
         else: 
             return False
         
+    def isChainRightValid(self):
+        if _format_date(self.exp) and self._format_right():
+            return True
+        else: 
+            return False       
+        
     def _isOptionRangeValid(self,_start_date,_end_date):
         if _isDateRangeValid(_start_date,_end_date) and _isDateRangeValid(_end_date,self._exp):
             return True
@@ -69,9 +75,20 @@ class Option(MyWrapper):
         
     # Call endpoint helpers
     def _get_list_dates(self):
+        """
+        Retrieves all the dates available for a specific contract - minimum {root,expiry}
+
+        Returns:
+            _type_: List of dates
+        """
         self.call_type = "list"
         self.url = f"{self.base_url}/{self.call_type}/dates/{self.sec_type}/{self.req_type}"
-        self.params = {"root":self.root}
+        self.params = {
+            "root":self.root
+            ,"exp":self._exp
+            ,"right":self._right
+            ,"strike":self._strike
+            }
         return self._get_data()
         
     def _get_hist(self,start_date,end_date,ivl):
@@ -157,11 +174,14 @@ class Option(MyWrapper):
         """
         self.call_type = "list"
         self.req_type = "strikes"
-        _exp = _format_date(self.exp)
-        
-        self.url = f"{self.base_url}/{self.call_type}/{self.req_type}"
-        self.params = {"exp": _exp, "root": self.root}
-        return self._get_data()
+        if self.exp:
+            _exp = _format_date(self.exp)
+            
+            self.url = f"{self.base_url}/{self.call_type}/{self.req_type}"
+            self.params = {"exp": _exp, "root": self.root}
+            return self._get_data()
+        else:
+            raise OptionError("Expiry date is missing")
 
     def get_list_expirations(self) -> List[str]:
         """
@@ -182,15 +202,15 @@ class Option(MyWrapper):
         self.params = {"root": self.root}
         return self._get_data()
     
-    def get_list_expirations_trade(self) -> List[str]:
+    def get_list_dates_trade(self) -> List[str]:
         self.req_type = "trade"
         return self._get_list_dates()
     
-    def get_list_expirations_quote(self) -> List[str]:
+    def get_list_dates_quote(self) -> List[str]:
         self.req_type = "quote"
         return self._get_list_dates()
     
-    def get_list_expirations_implied_volatility(self) -> List[str]:
+    def get_list_dates_implied_volatility(self) -> List[str]:
         self.req_type = "implied_volatility"
         return self._get_list_dates()
 
