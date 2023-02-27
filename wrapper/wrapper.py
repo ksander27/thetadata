@@ -23,6 +23,7 @@ class MyWrapper:
         self.response = None
         
         self.format = None
+        self._async = False
         
     def _parse_header(self) -> Union[List, int]:
         """
@@ -97,7 +98,16 @@ class MyWrapper:
             Exception: If the HTTP response status code is not successful.
         """
         
-        self.request = rq.get(self.url, params=self.params) 
-        if self._parse_header():
-            data = self._parse_response()
-            return data
+        if self._async :
+            return self._get_url_params()
+        else:
+            self.request = rq.get(self.url, params=self.params) 
+            if self._parse_header():
+                data = self._parse_response()
+                return data
+        
+    def _get_url_params(self) -> Dict[str, Any]:
+        return {
+            "url":self.url
+            ,"params":self.params
+            }
