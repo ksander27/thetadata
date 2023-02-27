@@ -4,8 +4,8 @@ from .wrapper import MyWrapper
 
 
 class Stock(MyWrapper):
-    def __init__(self,root):
-        super().__init__()
+    def __init__(self,root,*args,**kwargs):
+        super().__init__(*args,**kwargs)
         self.sec_type = "stock"
         self.root = root
     

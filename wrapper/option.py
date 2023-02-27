@@ -13,8 +13,8 @@ class StrikeError(Exception):
     pass
 
 class Option(MyWrapper):
-    def __init__(self,root="SPY",exp=None,right=None,strike=None):
-        super().__init__()
+    def __init__(self,root="SPY",exp=None,right=None,strike=None,*args,**kwargs):
+        super().__init__(*args,**kwargs)
         self.sec_type = "option"
 
         self.root = root
