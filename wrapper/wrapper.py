@@ -7,7 +7,7 @@ class RootOrExpirationError(Exception):
     pass
 
 class MyWrapper:
-    def __init__(self):
+    def __init__(self,_async=False):
         """
         Initializes the MyWrapper class with the base url and call type.
         """
@@ -23,7 +23,7 @@ class MyWrapper:
         self.response = None
         
         self.format = None
-        self._async = False
+        self._async = _async
         
     def _parse_header(self) -> Union[List, int]:
         """
