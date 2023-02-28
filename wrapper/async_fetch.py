@@ -4,21 +4,36 @@ from .wrapper import NoDataForContract
 
 
 # Function to be added in _get_data and will be played if _async = True
-async def _fetch_task(contract,session):
-    async with session.get(contract.url,params=contract.params) as r:
-        if r.status !=200:
-            r.raise_for_status()
-        else:
-            try:
-                _ = await r.json()
-                contract.header = _.get("header")
-                contract.response = _.get("response")
+async def _fetch_task(contract, session):
+    MAX_RETRIES = 2
+    TIMEOUT_SECONDS = 20
+    
+    for retry in range(MAX_RETRIES + 1):
+        try:
+            async with session.get(contract.url, params=contract.params) as r:
+                if r.status != 200:
+                    r.raise_for_status()
+                else:
+                    _ = await r.json()
+                    contract.header = _.get("header")
+                    contract.response = _.get("response")
 
-                if contract._parse_header():
-                    data = contract._parse_response()
-                    return {"data":data,"url":contract.url,"params":contract.params}
-            except NoDataForContract:
-                return {"data":None,"url":None,"params":None}
+                    if contract._parse_header():
+                        data = contract._parse_response()
+                        return {"data": data, "url": contract.url, "params": contract.params}
+        except asyncio.TimeoutError:
+            if retry == MAX_RETRIES:
+                raise
+            else:
+                print(f"Request timed out, retrying ({retry + 1}/{MAX_RETRIES + 1})")
+        except NoDataForContract:
+            return {"data": None, "url": None, "params": None}
+
+        await asyncio.sleep(1)  # Wait for 1 second before retrying
+        
+    return {"data": None, "url": None, "params": None}
+
+
         
 async def _gather_tasks(contracts,session):
     tasks = []
