@@ -8,7 +8,7 @@ async def _fetch_task(contract,session):
     retry_count = 0
     while retry_count < 2:
         try:
-            print(contract.url)
+            print(contract.params)
             async with session.get(contract.url,params=contract.params) as r:
                 if r.status !=200:
                     r.raise_for_status()
