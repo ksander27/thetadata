@@ -14,7 +14,7 @@ async def _fetch_task(contract,session):
 
             if contract._parse_header():
                 data = contract._parse_response()
-                return await {"data":data,"url":contract.url,"params":contract.params}
+                return {"data":data,"url":contract.url,"params":contract.params}
         
 async def _gather_tasks(contracts,session):
     tasks = []
