@@ -1,5 +1,6 @@
 import asyncio 
 import aiohttp
+from .wrapper import NoDataForContract
 
 
 # Function to be added in _get_data and will be played if _async = True
@@ -8,13 +9,16 @@ async def _fetch_task(contract,session):
         if r.status !=200:
             r.raise_for_status()
         else:
-            _ = await r.json()
-            contract.header = _.get("header")
-            contract.response = _.get("response")
+            try:
+                _ = await r.json()
+                contract.header = _.get("header")
+                contract.response = _.get("response")
 
-            if contract._parse_header():
-                data = contract._parse_response()
-                return {"data":data,"url":contract.url,"params":contract.params}
+                if contract._parse_header():
+                    data = contract._parse_response()
+                    return {"data":data,"url":contract.url,"params":contract.params}
+            except NoDataForContract:
+                return {"data":None,"url":None,"params":None}
         
 async def _gather_tasks(contracts,session):
     tasks = []

@@ -1,4 +1,4 @@
-from .wrapper import MyWrapper,RootOrExpirationError
+from .wrapper import MyWrapper,RootOrExpirationError,NoDataForContract
 from .option import Option,OptionError,RightError,StrikeError
 from .stock import Stock
 from .utils import ResponseFormatError,IVLError

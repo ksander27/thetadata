@@ -5,6 +5,9 @@ from .utils import ResponseFormatError
 class RootOrExpirationError(Exception):
     pass
 
+class NoDataForContract(Exception):
+    pass
+
 class MyWrapper:
     def __init__(self,_async=False):
         """
@@ -76,9 +79,9 @@ class MyWrapper:
 
         if err_type != "null":
             if "Nonexistent root symbol or expiration" in err_msg:
-                raise RootOrExpirationError(err_msg)
-            else:
-                raise ResponseFormatError(err_msg)
+                raise RootOrExpirationError(f"[+] Error code - {err_type} : {err_msg}")
+            elif "No data for the specified timeframe & contract" in err_msg:
+                raise NoDataForContract(f"[+] Error code - {err_type} : {err_msg}")
         return True
     
     def _parse_data(self):
