@@ -1,5 +1,4 @@
-from .option import Option
-from .async_fetch import fetch_all_contracts
+from wrapper import Option,fetch_all_contracts
 
 import pandas as pd 
 import asyncio
@@ -12,20 +11,20 @@ def get_option(args,strike,right,params):
     opt.get_hist_open_interest(**params)
     return opt
 
-if __name__=='__main__':
-
-    
-    def get_df_tmp(contract):
+def get_df_tmp(contract):
+    url = contract.get("url")
+    if url:
         data = contract.get("data")
         params = contract.get("params")
-        url = contract.get("url")
+
 
         df_tmp = pd.DataFrame(data)
         df_tmp["url"] = url
         for k,v in params.items():
             df_tmp[k] = v
         return df_tmp
-    
+
+if __name__=='__main__':
     args = {
         "root":"AMD"
         ,"exp":"20230317"
@@ -41,7 +40,7 @@ if __name__=='__main__':
     strikes = option.get_list_strikes()
 
     # Get options with url and params
-    options = [get_option(args,strike,right) for strike in strikes for right in ["call","put"]]
+    options = [get_option(args,strike,right,params) for strike in strikes for right in ["call","put"]]
     print(f"[+] About to fetch {len(options)} options...")
 
     # Fetching responses
@@ -58,7 +57,7 @@ if __name__=='__main__':
     _start,_end = params.get("start_date"),params.get("end_date")
     _filename = f"./{root}_{exp}_{_start}_{_end}"
     df.to_csv(_filename,index=False)
-    print("[+] Save {_filename} with shape {df.shape}")
+    print(f"[+] Save {_filename} with shape {df.shape}")
 
 
 
