@@ -36,14 +36,17 @@ async def _gather_tasks(contracts,session):
 
 async def fetch_all_contracts(contracts):
     """
-
-    Args:
-        contracts (_type_): _description_
-
-    Returns:
-        _type_: List of dictionnaries with keys data url and params
+    Fetch data for all contracts asynchronously.
     """
     async with aiohttp.ClientSession() as session:
-        data = await asyncio.wait_for(_gather_tasks(contracts, session), timeout=20)
-        return data
+        for retry in range(3):
+            try:
+                data = await asyncio.wait_for(_gather_tasks(contracts, session), timeout=20)
+                return data
+            except asyncio.TimeoutError:
+                if retry == 2:
+                    print("Timeout: maximum number of retries reached.")
+                    raise
+                print(f"Timeout: retrying ({retry+1}/2)...")
+
 
