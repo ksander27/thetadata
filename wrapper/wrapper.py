@@ -1,6 +1,5 @@
 from typing import Dict,Any,Union,List
 import requests as rq
-
 from .utils import ResponseFormatError
 
 class RootOrExpirationError(Exception):
@@ -24,6 +23,34 @@ class MyWrapper:
         
         self.format = None
         self._async = _async
+
+    def _isRequestOkay(self):
+        try: 
+            if self.request.ok:
+                # If the request was successful, return True
+                return True
+            else:
+                # If the request was not successful, raise an exception with the corresponding status code
+                raise Exception(f"HTTP error {self.request.status_code}")
+        except AttributeError:
+            if self.request.status == 200:
+                # If the status code indicates success, return True
+                return True
+            else:
+                # If the status code indicates an error, raise an exception with the corresponding status code
+                raise Exception(f"HTTP error {self.request.status_code}")
+            
+
+    def _isResponseOkay(self):
+        if not self.response:
+            raise ResponseFormatError("Response content is empty")
+        elif not isinstance(self.response, list):
+            raise ResponseFormatError(f"Response is {type(self.response)} - should be list")
+        elif len(self.response) == 0:
+            raise ResponseFormatError(f"Response is [] - check query")
+        return True
+
+
         
     def _parse_header(self) -> Union[List, int]:
         """
@@ -39,11 +66,8 @@ class MyWrapper:
         ResponseFormatError: if there is an error in the response
 
         """        
-        if not self.request.ok :
-            raise Exception(f"HTTP error {self.request.status_code}")
-
         _ = self.request.json()
-        
+    
         self.header = _.get('header')
         err_type = self.header.get('error_type')
         err_msg = self.header.get('error_msg')
@@ -54,7 +78,12 @@ class MyWrapper:
             else:
                 raise ResponseFormatError(err_msg)
         return True
-
+    
+    def _parse_data(self):
+        if self.format is None:
+            return [{self.req_type: element} for element in self.response]
+        else:
+            return [{key: element[idx] for idx, key in enumerate(self.format)} for element in self.response]
 
     def _parse_response(self):
         """
@@ -73,18 +102,9 @@ class MyWrapper:
         self.response = _.get('response')
         self.format = self.header.get('format')
 
-        if not self.response:
-            raise ResponseFormatError("Response content is empty")
-        elif not isinstance(self.response, list):
-            raise ResponseFormatError(f"Response is {type(self.response)} - should be list")
-        elif len(self.response) == 0:
-            raise ResponseFormatError(f"Response is [] - check query")
+        if self._isResponseOkay():
+            return self._parse_data()
 
-        if self.format is None:
-            return [{self.req_type: element} for element in self.response]
-        else:
-            return [{key: element[idx] for idx, key in enumerate(self.format)} for element in self.response]
-        
 
     def _get_data(self) -> List[Dict[str, Any]]:
         """Helper function that sends a GET request to the API endpoint and parses the response data.
@@ -99,15 +119,13 @@ class MyWrapper:
         """
         
         if self._async :
-            return self._get_url_params()
+            return {
+                "url":self.url
+                ,"params":self.params
+                }
+
         else:
             self.request = rq.get(self.url, params=self.params) 
-            if self._parse_header():
+            if self._isRequestOkay() and self._parse_header():                
                 data = self._parse_response()
                 return data
-        
-    def _get_url_params(self) -> Dict[str, Any]:
-        return {
-            "url":self.url
-            ,"params":self.params
-            }
