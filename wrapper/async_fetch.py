@@ -8,7 +8,7 @@ async def _fetch_task(contract,session):
         if r.status !=200:
             r.raise_for_status()
         else:
-            _ = r.json()
+            _ = await r.json()
             contract.header = _.get("header")
             contract.response = _.get("response")
 
