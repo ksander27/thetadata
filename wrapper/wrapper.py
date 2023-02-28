@@ -25,14 +25,14 @@ class MyWrapper:
         self._async = _async
 
     def _isRequestOkay(self):
-        try: 
+        if not self._async:
             if self.request.ok:
                 # If the request was successful, return True
                 return True
             else:
                 # If the request was not successful, raise an exception with the corresponding status code
                 raise Exception(f"HTTP error {self.request.status_code}")
-        except AttributeError:
+        else:
             if self.request.status == 200:
                 # If the status code indicates success, return True
                 return True
@@ -66,9 +66,11 @@ class MyWrapper:
         ResponseFormatError: if there is an error in the response
 
         """        
-        _ = self.request.json()
-    
-        self.header = _.get('header')
+
+        if not self._async:
+            _ = self.request.json()
+            self.header = _.get('header')
+
         err_type = self.header.get('error_type')
         err_msg = self.header.get('error_msg')
 
@@ -98,10 +100,11 @@ class MyWrapper:
         ResponseFormatError: if there is an error in the response
 
         """
-        _ = self.request.json()
-        self.response = _.get('response')
-        self.format = self.header.get('format')
+        if not self._async:
+            _ = self.request.json()
+            self.response = _.get('response')
 
+        self.format = self.header.get('format')
         if self._isResponseOkay():
             return self._parse_data()
 
