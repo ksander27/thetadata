@@ -46,7 +46,7 @@ class MyWrapper:
 
     def _isResponseOkay(self):
         if not self.response:
-            raise ResponseFormatError("Response content is empty")
+            raise NoDataForContract("Response content is empty")
         elif not isinstance(self.response, list):
             raise ResponseFormatError(f"Response is {type(self.response)} - should be list")
         elif len(self.response) == 0:
