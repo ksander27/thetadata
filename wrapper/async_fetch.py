@@ -4,10 +4,17 @@ import aiohttp
 
 # Function to be added in _get_data and will be played if _async = True
 async def _fetch_task(contract,session):
-    async with session.get(contract.url,params=contract.params) as contract.request:
-        if contract._isRequestOkay() and contract._parse_header():
-            data = contract._parse_response()
-            return await {"data":data,"url":contract.url,"params":contract.params}
+    async with session.get(contract.url,params=contract.params) as r:
+        if r.status !=200:
+            r.raise_for_status()
+        else:
+            _ = r.json()
+            contract.header = _.get("header")
+            contract.response = _.get("response")
+
+            if contract._parse_header():
+                data = contract._parse_response()
+                return await {"data":data,"url":contract.url,"params":contract.params}
         
 async def _gather_tasks(contracts,session):
     tasks = []
