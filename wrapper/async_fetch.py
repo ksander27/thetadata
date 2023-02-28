@@ -42,7 +42,7 @@ async def fetch_all_contracts(contracts):
     async with aiohttp.ClientSession() as session:
         for retry in range(3):
             try:
-                data = await asyncio.wait_for(_gather_tasks(contracts, session), timeout=120)
+                data = await asyncio.wait_for(_gather_tasks(contracts, session), timeout=20)
                 return data
             except asyncio.TimeoutError:
                 if retry == 2:
