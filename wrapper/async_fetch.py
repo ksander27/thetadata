@@ -18,6 +18,7 @@ async def _fetch_task(contract,session,max_retry):
 
                     if contract._parse_header():
                         data = contract._parse_response()
+                        print(f"[+] Fetched data for contract - {contract.__str__()} - {contract.params}")
                         return {"data":data,"url":contract.url,"params":contract.params}
         except NoDataForContract:
             print(f"[+] No data for contract - {contract.__str__()} - {contract.params}")
