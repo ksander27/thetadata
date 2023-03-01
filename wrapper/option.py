@@ -82,6 +82,9 @@ class Option(MyWrapper):
             _type_: List of dates
         """
         self.call_type = "list"
+        if not self._isOptionValid():
+            raise OptionError("The parameters for the Option contract are not valid")
+        
         self.url = f"{self.base_url}/{self.call_type}/dates/{self.sec_type}/{self.req_type}"
         self.params = {
             "root":self.root
