@@ -20,7 +20,7 @@ async def _fetch_task(contract,session,max_retry):
                         data = contract._parse_response()
                         return {"data":data,"url":contract.url,"params":contract.params}
         except NoDataForContract:
-            print(f"[+] No data for contract {contract.__str__()}")
+            print(f"[+] No data for contract\n ## Header ##\n{contract.header}")
             return {"data":None,"url":None,"params":None}
         except aiohttp.ClientError:
             retry_count += 1
