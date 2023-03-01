@@ -4,9 +4,9 @@ from .wrapper import NoDataForContract
 
 
 # Function to be added in _get_data and will be played if _async = True
-async def _fetch_task(contract,session):
+async def _fetch_task(contract,session,max_retry):
     retry_count = 0
-    while retry_count < 2:
+    while retry_count < max_retry:
         try:
             async with session.get(contract.url,params=contract.params) as r:
                 if r.status !=200:
@@ -26,22 +26,22 @@ async def _fetch_task(contract,session):
     raise asyncio.TimeoutError(f"Timeout for {contract.url} after {retry_count} retries")
 
         
-async def _gather_tasks(contracts,session):
+async def _gather_tasks(contracts,session,max_retry):
     tasks = []
     for contract in contracts:
-        task = asyncio.create_task(_fetch_task(contract,session))
+        task = asyncio.create_task(_fetch_task(contract,session,max_retry))
         tasks.append(task)
     results = await asyncio.gather(*tasks)
     return results
 
-async def fetch_all_contracts(contracts):
+async def fetch_all_contracts(contracts,timeout=20,max_retry=2):
     """
     Fetch data for all contracts asynchronously.
     """
     async with aiohttp.ClientSession() as session:
         for retry in range(3):
             try:
-                data = await asyncio.wait_for(_gather_tasks(contracts, session), timeout=20)
+                data = await asyncio.wait_for(_gather_tasks(contracts, session,max_retry), timeout=timeout)
                 return data
             except asyncio.TimeoutError:
                 if retry == 2:
