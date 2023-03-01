@@ -46,7 +46,7 @@ async def fetch_all_contracts(contracts,timeout=20,max_retry=2):
                 data = await asyncio.wait_for(_gather_tasks(contracts, session,max_retry), timeout=timeout)
                 return data
             except asyncio.TimeoutError:
-                if retry == 2:
+                if retry == max_retry:
                     print("Timeout: maximum number of retries reached.")
                     raise
                 print(f"Timeout: retrying ({retry+1}/2)...")
