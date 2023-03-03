@@ -36,19 +36,26 @@ async def _gather_tasks(contracts,session,max_retry):
     results = await asyncio.gather(*tasks)
     return results
 
-async def fetch_all_contracts(contracts,timeout=20,max_retry=2):
+async def fetch_all_contracts(contracts, timeout=20, max_retry=2):
     """
     Fetch data for all contracts asynchronously.
     """
     async with aiohttp.ClientSession() as session:
         for retry in range(max_retry):
             try:
-                data = await asyncio.wait_for(_gather_tasks(contracts, session,max_retry), timeout=timeout)
+                data = await asyncio.wait_for(_gather_tasks(contracts, session, max_retry), timeout=timeout)
                 return data
             except asyncio.TimeoutError:
-                if retry == max_retry:
+                if retry == max_retry-1:
                     print("Timeout: maximum number of retries reached.")
                     raise
                 print(f"Timeout: retrying ({retry+1}/{max_retry})...")
+            except Exception as e:
+                print(f"Error: {e}")
+                if retry == max_retry-1:
+                    print("Maximum number of retries reached.")
+                    raise
+                print(f"Retrying ({retry+1}/{max_retry})...")
+                await asyncio.sleep(1)
 
 
