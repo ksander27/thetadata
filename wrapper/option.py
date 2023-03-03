@@ -34,6 +34,9 @@ class Option(MyWrapper):
         
     # Helper
     def _get_method(self,method,params=None):
+        if not params:
+            params = {}
+            
         func = getattr(self, method)
         func(**params)
         return self
