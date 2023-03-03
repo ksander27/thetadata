@@ -38,8 +38,11 @@ async def fetch_all_contracts(contracts, timeout=20, max_retry=2):
         tasks = [_fetch_task(contract, session, max_retry) for contract in contracts]
         data = []
         for task in asyncio.as_completed(tasks, timeout=timeout):
-                result = await task
-                data.append(result)
+                try:
+                    result = await task
+                    data.append(result)
+                except asyncio.TimeoutError:
+                    pass
     return data
 
 
