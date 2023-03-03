@@ -49,13 +49,13 @@ async def fetch_all_contracts(contracts, timeout=20, max_retry=2):
             except asyncio.TimeoutError:
                 if retry == max_retry-1:
                     print("Timeout: maximum number of retries reached.")
-                    raise
+                    #raise
                 print(f"Timeout: retrying ({retry+1}/{max_retry})...")
             except Exception as e:
                 print(f"Error: {e}")
                 if retry == max_retry-1:
                     print("Maximum number of retries reached.")
-                    raise
+                    #raise
                 print(f"Retrying ({retry+1}/{max_retry})...")
                 await asyncio.sleep(1)
 
