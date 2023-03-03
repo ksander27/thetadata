@@ -30,7 +30,7 @@ async def fetch_all_contracts(contracts, timeout=20, max_retry=2):
     """
     async with aiohttp.ClientSession() as session:
 
-        tasks = [_fetch_task(contract, session, max_retry) for contract in contracts]
+        tasks = [_fetch_task(contract, session) for contract in contracts]
         data = []
         for task in asyncio.as_completed(tasks, timeout=timeout):
                 retry = 0
