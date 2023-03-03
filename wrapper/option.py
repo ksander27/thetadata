@@ -36,7 +36,7 @@ class Option(MyWrapper):
     def _get_method(self,method,params=None):
         if not params:
             params = {}
-            
+
         func = getattr(self, method)
         func(**params)
         return self
@@ -57,8 +57,8 @@ class Option(MyWrapper):
     def _format_strike(self):
         if self.strike is None:
             return None
-        if not isinstance(self.strike, int):
-            raise StrikeError("Strike price must be an integer")
+        if not isinstance(self.strike, int) or not isinstance(self.strike, float):
+            raise StrikeError("Strike price must be an integer or a float")
         if self.strike < 0:
             raise StrikeError("Strike price must be non-negative")
         return int(self.strike*1000)
