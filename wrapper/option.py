@@ -57,7 +57,7 @@ class Option(MyWrapper):
     def _format_strike(self):
         if self.strike is None:
             return None
-        if not isinstance(self.strike, int) or not isinstance(self.strike, float):
+        if not isinstance(self.strike, int) and not isinstance(self.strike, float):
             raise StrikeError("Strike price must be an integer or a float")
         if self.strike < 0:
             raise StrikeError("Strike price must be non-negative")
