@@ -36,9 +36,11 @@ async def fetch_all_contracts(contracts, timeout=20, max_retry=2):
                 try:
                     result = await task
                     data.append(result)
-                except (asyncio.TimeoutError,aiohttp.ClientError):
-                    retry+=1
-                    print(f"[+] Timeout: retrying ({retry}/{max_retry})...")
+                except (asyncio.TimeoutError):
+                    print(f"[+] Timeout error ") 
+                except (aiohttp.ClientError,aiohttp.ServerDisconnectedError):
+                     print("[+] Server side error")
+                    
 
     return data
 
