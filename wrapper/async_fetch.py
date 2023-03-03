@@ -25,10 +25,10 @@ async def _fetch_task(contract, session):
         return {"data": None, "url": None, "params": None}
     
 
-async def _gather_tasks(contracts,session,max_retry):
+async def _gather_tasks(contracts,session):
     tasks = []
     for contract in contracts:
-        task = asyncio.create_task(_fetch_task(contract,session,max_retry))
+        task = asyncio.create_task(_fetch_task(contract,session))
         tasks.append(task)
     results = await asyncio.gather(*tasks)
     return results
