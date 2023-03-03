@@ -37,7 +37,7 @@ async def fetch_all_contracts(contracts,limit=32,timeout=20,max_retry=2):
     """
     Fetch data for all contracts asynchronously.
     """
-    connector = aiohttp.TCPConnector(limit)
+    connector = aiohttp.TCPConnector(limit=limit)
     async with aiohttp.ClientSession(connector=connector) as session:
         data = await _gather_tasks(contracts,session)
         return data
