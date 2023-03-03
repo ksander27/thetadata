@@ -20,9 +20,12 @@ async def _fetch_task(contract, session, max_retry):
                         data = contract._parse_response()
                         print(f"[+] Fetched data for contract - {contract.__str__()} - {contract.params}")
                         return {"data": data, "url": contract.url, "params": contract.params}
-        except (NoDataForContract, aiohttp.ClientError,asyncio.TimeoutError):
+        except NoDataForContract:
+            print(f"[+] No data data for contract - {contract.__str__()} - {contract.params}")
+            return {"data": None, "url": None, "params": None}
+        except (aiohttp.ClientError,asyncio.TimeoutError):
             retry_count += 1
-            print(f"Timeout: retrying ({retry_count+1}/{max_retry}) in 1 second...")
+            print(f"Timeout: retrying ({retry_count}/{max_retry}) in 1 second...")
             await asyncio.sleep(1)
     raise asyncio.TimeoutError(f"Timeout for {contract.url} after {retry_count} retries")
 
