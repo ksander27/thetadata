@@ -25,6 +25,9 @@ async def _fetch_task(contract,session,max_retry):
             return {"data":None,"url":None,"params":None}
         except aiohttp.ClientError:
             retry_count += 1
+        except asyncio.CancelledError:
+            print(f"[+] Task cancelled for contract - {contract.__str__()} - {contract.params}")
+            return {"data": None, "url": None, "params": None}
     raise asyncio.TimeoutError(f"Timeout for {contract.url} after {retry_count} retries")
 
         
