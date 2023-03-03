@@ -2,6 +2,8 @@ import asyncio
 import aiohttp
 from .wrapper import NoDataForContract
 
+class TaskTimeOut(Exception):
+    pass
 
 # Function to be added in _get_data and will be played if _async = True
 async def _fetch_task(contract, session, max_retry):
@@ -29,7 +31,7 @@ async def _fetch_task(contract, session, max_retry):
             await asyncio.sleep(1)
 
     print(f"[+] Timeout for {contract.url} after {retry_count} retries")
-    raise asyncio.TimeoutError
+    raise TaskTimeOut
 
 
 async def fetch_all_contracts(contracts, timeout=20, max_retry=2):
@@ -43,7 +45,7 @@ async def fetch_all_contracts(contracts, timeout=20, max_retry=2):
                 try:
                     result = await task
                     data.append(result)
-                except asyncio.TimeoutError:
+                except TaskTimeOut:
                     print("[+] MOVING ON ")
                     pass
     return data
