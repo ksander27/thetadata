@@ -31,8 +31,13 @@ class Option(MyWrapper):
             return f"{self.root}_{self.exp}_{self.right}_{self.strike}"
         else:
             return None
-
+        
     # Helper
+    def _get_method(self,method,params=None):
+        func = getattr(self, method)
+        func(**params)
+        return self
+    
     def _format_right(self):
         if self.right is None:
             return None
