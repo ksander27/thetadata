@@ -48,6 +48,8 @@ async def fetch_all_contracts(contracts, timeout=20, max_retry=2):
                 except TaskTimeOut:
                     print("[+] TASK TIME OUT MOVING ON ")
                     pass
+                except asyncio.TimeoutError:
+                    print("retry in task is useless")
     return data
 
 
