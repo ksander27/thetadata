@@ -42,6 +42,7 @@ async def fetch_all_contracts(contracts, timeout=20, max_retry=2):
                     result = await task
                     data.append(result)
                 except asyncio.TimeoutError:
+                    print("[+] MOVING ON ")
                     pass
     return data
 
