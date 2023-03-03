@@ -33,15 +33,13 @@ async def fetch_all_contracts(contracts, timeout=20, max_retry=2):
         tasks = [_fetch_task(contract, session) for contract in contracts]
         data = []
         for task in asyncio.as_completed(tasks, timeout=timeout):
-                retry = 0
-                while retry < max_retry:
-                    try:
-                        result = await task
-                        data.append(result)
-                    except (asyncio.TimeoutError,aiohttp.ClientError):
-                        retry+=1
-                        print(f"[+] Timeout: retrying ({retry}/{max_retry})...")
-                print("[+] MAX RETRY FOR TASK - moving on")
+                try:
+                    result = await task
+                    data.append(result)
+                except (asyncio.TimeoutError,aiohttp.ClientError):
+                    retry+=1
+                    print(f"[+] Timeout: retrying ({retry}/{max_retry})...")
+
     return data
 
 
