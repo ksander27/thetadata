@@ -121,3 +121,5 @@ async def fetch_all_contracts(contracts_in_exp, batch_size=32, TIMEOUT=20, MAX_R
 #     else:
 #         print(f"[+] Max retries reached. Giving up")
 #     return data
+
+# BATCH_SIZE,TIMEOUT,MAX_RETRY,SLEEP = 32,5,3,20
