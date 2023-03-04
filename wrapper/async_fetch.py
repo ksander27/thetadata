@@ -1,5 +1,7 @@
 import asyncio 
 import aiohttp
+import random
+import time
 from .wrapper import NoDataForContract
 
 class TaskTimeOut(Exception):
@@ -39,13 +41,13 @@ async def _fetch_task(contract, session, TIMEOUT,MAX_RETRY,SLEEP):
                         data = contract._parse_response()
                         print(f"[+] Fetched data for contract - {contract.__str__()} - {contract.params}")
                         return {"data": data, "url": contract.url, "params": contract.params}
-            asyncio.sleep(SLEEP)
+            await asyncio.sleep(SLEEP * (2 ** i) + random.uniform(0, 1))
         except NoDataForContract:
             print(f"[+] No data data for contract - {contract.__str__()} - {contract.params}")
             return {"data": None, "url": None, "params": None}
         except asyncio.TimeoutError:
             print(f"[+] Timed out for contract - {contract.__str__()} - {contract.params}")
-            asyncio.sleep(SLEEP)
+            await asyncio.sleep(SLEEP * (2 ** i) + random.uniform(0, 1))
     print(f"Failed to fetch data for contract - {contract.__str__()} - {contract.params}")
     return {"data": None, "url": contract.url, "params": contract.params}
 
