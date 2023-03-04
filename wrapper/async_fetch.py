@@ -4,6 +4,23 @@ import random
 from .wrapper import NoDataForContract
 
 
+# async def fetch_all_contracts(contracts, batch_size=32, TIMEOUT=20, MAX_RETRY=2, SLEEP=20):
+#     """
+#     Fetch data for all contracts asynchronously.
+#     """
+#     connector = aiohttp.TCPConnector(limit=batch_size)
+#     async with aiohttp.ClientSession(connector=connector) as session:
+#         data = []
+#         start = 0
+#         while start < len(contracts):
+#             end = min(start + batch_size, len(contracts))
+#             batch = contracts[start:end]
+#             # fetch a batch of contracts
+#             result = await asyncio.wait_for(fetch_batch(batch, session, TIMEOUT, MAX_RETRY, SLEEP), timeout=TIMEOUT)
+#             data += result
+#             start += batch_size
+#         return data
+
 async def _fetch_task(contract, session):
     try:
         async with session.get(contract.url, params=contract.params) as r:
@@ -39,22 +56,6 @@ async def fetch_batch(contracts,session,TIMEOUT,MAX_RETRY,SLEEP):
     results = await asyncio.gather(*tasks)
     return results
 
-# async def fetch_all_contracts(contracts, batch_size=32, TIMEOUT=20, MAX_RETRY=2, SLEEP=20):
-#     """
-#     Fetch data for all contracts asynchronously.
-#     """
-#     connector = aiohttp.TCPConnector(limit=batch_size)
-#     async with aiohttp.ClientSession(connector=connector) as session:
-#         data = []
-#         start = 0
-#         while start < len(contracts):
-#             end = min(start + batch_size, len(contracts))
-#             batch = contracts[start:end]
-#             # fetch a batch of contracts
-#             result = await asyncio.wait_for(fetch_batch(batch, session, TIMEOUT, MAX_RETRY, SLEEP), timeout=TIMEOUT)
-#             data += result
-#             start += batch_size
-#         return data
     
 
 async def fetch_all_contracts(contracts,batch_size=32, TIMEOUT=20, MAX_RETRY=2,SLEEP=20):
@@ -69,7 +70,7 @@ async def fetch_all_contracts(contracts,batch_size=32, TIMEOUT=20, MAX_RETRY=2,S
             try:
                 # Maybe do a batch with size limit here?
                 for task in asyncio.as_completed(tasks, timeout=TIMEOUT):
-                        result = await task
+                        result = task
                         data.append(result)
             except asyncio.TimeoutError:
                 i+=1
