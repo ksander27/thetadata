@@ -69,7 +69,7 @@ async def fetch_all_contracts(contracts,batch_size=32, TIMEOUT=20, MAX_RETRY=2,S
             try:
                 # Maybe do a batch with size limit here?
                 for task in asyncio.as_completed(tasks, timeout=TIMEOUT):
-                        result = task
+                        result = await task
                         data.append(result)
             except asyncio.TimeoutError:
                 i+=1
