@@ -54,7 +54,7 @@ async def fetch_all_contracts(contracts_in_exp, batch_size=32, TIMEOUT=20, MAX_R
                 j+=batch_size
             break
         except asyncio.TimeoutError:
-            MAX_RETRY -= 1
+            i -= 1
             print(f"[+] Timed out {MAX_RETRY-i}/{MAX_RETRY} .. going to sleep")
             await asyncio.sleep(SLEEP)
     else:
