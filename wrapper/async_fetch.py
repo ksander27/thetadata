@@ -61,7 +61,7 @@ async def fetch_all_contracts(contracts_in_exp, batch_size=32, TIMEOUT=20, MAX_R
         print(f"[+] Max retries reached. Giving up")
     return data
 
-
+# Last time it run fine - DO NOT TOUCH
 # async def _fetch_task(contract, session,TIMEOUT):
 #     try:
 #         async with session.get(contract.url, params=contract.params, timeout=TIMEOUT) as r:
