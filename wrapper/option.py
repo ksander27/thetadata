@@ -38,8 +38,11 @@ class Option(MyWrapper):
             params = {}
 
         func = getattr(self, method)
-        func(**params)
-        return self
+        data = func(**params)
+        if self._async:
+            return self
+        else:
+            return data
     
     def _format_right(self):
         if self.right is None:

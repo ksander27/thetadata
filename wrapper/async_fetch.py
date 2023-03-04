@@ -30,7 +30,6 @@ async def _fetch_task(contract, session, TIMEOUT,MAX_RETRY,SLEEP):
     print(f"Failed to fetch data for contract - {contract.__str__()} - {contract.params}")
     return {"data": None, "url": contract.url, "params": contract.params}
 
-
     
 
 async def fetch_batch(contracts,session,TIMEOUT,MAX_RETRY,SLEEP):
@@ -57,3 +56,21 @@ async def fetch_all_contracts(contracts, batch_size=32, TIMEOUT=20, MAX_RETRY=2,
             data += result
             start += batch_size
         return data
+    
+
+# async def fetch_all_contracts(contracts, timeout=20, max_retry=2):
+#     """
+#     Fetch data for all contracts asynchronously.
+#     """
+#     async with aiohttp.ClientSession() as session:
+
+#         tasks = [_fetch_task(contract, session, max_retry) for contract in contracts]
+#         data = []
+#         for task in asyncio.as_completed(tasks, timeout=timeout):
+#             try:
+#                 result = await task
+#                 data.append(result)
+#             except asyncio.TimeoutError:
+#                 print("[+] TIMEOUT FOR TASK - moving on")
+#                 continue
+#     return data
