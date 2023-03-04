@@ -21,6 +21,15 @@ from .wrapper import NoDataForContract
 #             start += batch_size
 #         return data
 
+
+# async def fetch_batch(contracts,session,TIMEOUT,MAX_RETRY,SLEEP):
+#     tasks = []
+#     for contract in contracts:
+#         task = asyncio.create_task(_fetch_task(contract,session,TIMEOUT,MAX_RETRY,SLEEP))
+#         tasks.append(task)
+#     results = await asyncio.gather(*tasks)
+#     return results
+
 async def _fetch_task(contract, session):
     try:
         async with session.get(contract.url, params=contract.params) as r:
@@ -45,16 +54,6 @@ async def _fetch_task(contract, session):
 
     print(f"Failed to fetch data for contract - {contract.__str__()} - {contract.params}")
     return {"data": None, "url": contract.url, "params": contract.params}
-
-    
-
-async def fetch_batch(contracts,session,TIMEOUT,MAX_RETRY,SLEEP):
-    tasks = []
-    for contract in contracts:
-        task = asyncio.create_task(_fetch_task(contract,session,TIMEOUT,MAX_RETRY,SLEEP))
-        tasks.append(task)
-    results = await asyncio.gather(*tasks)
-    return results
 
     
 
