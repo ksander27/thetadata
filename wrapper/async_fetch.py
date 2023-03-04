@@ -48,12 +48,12 @@ async def fetch_all_contracts(contracts, batch_size=32, TIMEOUT=20, MAX_RETRY=2,
     connector = aiohttp.TCPConnector(limit=batch_size)
     async with aiohttp.ClientSession(connector=connector) as session:
         data = []
-        i = 0
-        for i in range(0, len(contracts), batch_size):
-            end = min(i + batch_size, len(contracts))
-            batch = contracts[i:end]
+        start = 0
+        while start < len(contracts):
+            end = min(start + batch_size, len(contracts))
+            batch = contracts[start:end]
             # fetch a batch of contracts
             result = await asyncio.wait_for(fetch_batch(batch, session, TIMEOUT, MAX_RETRY, SLEEP), timeout=TIMEOUT)
             data += result
-            i += batch_size
+            start += batch_size
         return data
