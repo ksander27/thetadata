@@ -33,7 +33,7 @@ async def _fetch_task(contract, session, TIMEOUT,MAX_RETRY,SLEEP):
 
     
 
-async def _gather_tasks(contracts,session,TIMEOUT,MAX_RETRY,SLEEP):
+async def fetch_batch(contracts,session,TIMEOUT,MAX_RETRY,SLEEP):
     tasks = []
     for contract in contracts:
         task = asyncio.create_task(_fetch_task(contract,session,TIMEOUT,MAX_RETRY,SLEEP))
@@ -41,11 +41,18 @@ async def _gather_tasks(contracts,session,TIMEOUT,MAX_RETRY,SLEEP):
     results = await asyncio.gather(*tasks)
     return results
 
-async def fetch_all_contracts(contracts,limit=32,TIMEOUT=20,MAX_RETRY=2,SLEEP=20):
+async def fetch_all_contracts(contracts, limit=32, TIMEOUT=20, MAX_RETRY=2, SLEEP=20):
     """
     Fetch data for all contracts asynchronously.
     """
     connector = aiohttp.TCPConnector(limit=limit)
     async with aiohttp.ClientSession(connector=connector) as session:
-        data = await _gather_tasks(contracts,session,TIMEOUT,MAX_RETRY,SLEEP)
+        data = []
+        i = 0
+        while i < len(contracts):
+            # fetch a batch of contracts
+            batch = contracts[i:i+limit]
+            result = await asyncio.wait_for(fetch_batch(batch, session, TIMEOUT, MAX_RETRY, SLEEP), timeout=60)
+            data += result
+            i += limit
         return data
