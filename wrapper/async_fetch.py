@@ -24,7 +24,7 @@ class TaskTimeOut(Exception):
 #         print(f"[+] No data data for contract - {contract.__str__()} - {contract.params}")
 #         return {"data": None, "url": None, "params": None}
 
-async def _fetch_task(contract, session, TIMEOUT,MAX_RETRY):
+async def _fetch_task(contract, session, TIMEOUT,MAX_RETRY,SLEEP):
     for i in range(MAX_RETRY):
         try:
             async with session.get(contract.url, params=contract.params, timeout=TIMEOUT) as r:
@@ -44,26 +44,26 @@ async def _fetch_task(contract, session, TIMEOUT,MAX_RETRY):
             return {"data": None, "url": None, "params": None}
         except asyncio.TimeoutError:
             print(f"[+] Timed out for contract - {contract.__str__()} - {contract.params}")
-            asyncio.sleep(1)
+            asyncio.sleep(SLEEP)
     print(f"Failed to fetch data for contract - {contract.__str__()} - {contract.params}")
     return {"data": None, "url": contract.url, "params": contract.params}
 
 
     
 
-async def _gather_tasks(contracts,session,TIMEOUT,MAX_RETRY):
+async def _gather_tasks(contracts,session,TIMEOUT,MAX_RETRY,SLEEP):
     tasks = []
     for contract in contracts:
-        task = asyncio.create_task(_fetch_task(contract,session,TIMEOUT,MAX_RETRY))
+        task = asyncio.create_task(_fetch_task(contract,session,TIMEOUT,MAX_RETRY,SLEEP))
         tasks.append(task)
     results = await asyncio.gather(*tasks)
     return results
 
-async def fetch_all_contracts(contracts,limit=32,TIMEOUT=20,MAX_RETRY=2):
+async def fetch_all_contracts(contracts,limit=32,TIMEOUT=20,MAX_RETRY=2,SLEEP=20):
     """
     Fetch data for all contracts asynchronously.
     """
     connector = aiohttp.TCPConnector(limit=limit)
     async with aiohttp.ClientSession(connector=connector) as session:
-        data = await _gather_tasks(contracts,session,TIMEOUT,MAX_RETRY)
+        data = await _gather_tasks(contracts,session,TIMEOUT,MAX_RETRY,SLEEP)
         return data
