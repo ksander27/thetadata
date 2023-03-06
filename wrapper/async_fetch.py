@@ -1,6 +1,6 @@
 import asyncio 
 import aiohttp
-from multiprocessing import Pool
+from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
 from .wrapper import NoDataForContract
 from .option import Option
@@ -113,8 +113,8 @@ class QueueManager():
     
     def get_contracts_in_exp_pooling(self,list_args_params):
         df = pd.DataFrame()
-        with Pool(processes=self.PROCESSES) as pool:
-            results = pool.map(self._get_contracts_in_exp_async,list_args_params)
+        with ThreadPoolExecutor(max_workers=self.PROCESSES) as executor:
+            results = executor.map(self._get_contracts_in_exp_async,list_args_params)
         if results:
             for df_res in results:
                 if df_res is not None:
