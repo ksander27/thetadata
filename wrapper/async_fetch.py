@@ -1,6 +1,9 @@
 import asyncio 
 import aiohttp
+from multiprocessing import Pool
+import pandas as pd
 from .wrapper import NoDataForContract
+from .option import Option
 
 
 # Last time it run fine - DO NOT TOUCH
@@ -65,3 +68,56 @@ async def fetch_all_contracts(contracts_in_exp, batch_size=32, TIMEOUT=5, MAX_RE
     return data
 
 # BATCH_SIZE,TIMEOUT,MAX_RETRY,SLEEP = 32,5,3,20
+def get_df_tmp(contract):
+    url = contract.get("url")
+    data = contract.get("data")
+    params = contract.get("params")
+    if url and data:
+
+        try:
+            df_tmp = pd.DataFrame(data)
+        except ValueError:
+            print(data)
+            raise ValueError
+        df_tmp["url"] = url
+        for k,v in params.items():
+            df_tmp[k] = v
+        return df_tmp
+    
+def prepare_contracts_in_exp_from_list_args_params(list_args_params):
+    contracts_in_exp = []
+    for args_params in list_args_params:
+        args,_params,method = args_params.get("args"),args_params.get("params"),args_params.get("method")
+        params = {"method":method,"params":_params}
+        args["_async"] = True 
+        option = Option(**args)
+        contracts_in_exp.append(option._get_method(**params))
+    return contracts_in_exp
+
+class QueueManager():
+    def __init__(self,BATCH_SIZE=100,TIMEOUT=4,MAX_RETRY=3,SLEEP=20,PROCESSES=4):
+        self.BATCH_SIZE = BATCH_SIZE
+        self.TIMEOUT = TIMEOUT
+        self.MAX_RETRY = MAX_RETRY
+        self.SLEEP = SLEEP
+        self.PROCESSES = PROCESSES
+        
+    def _get_contracts_in_exp_async(self,list_args_params):
+        contracts_in_exp = prepare_contracts_in_exp_from_list_args_params(list_args_params)
+        results = asyncio.run(fetch_all_contracts(contracts_in_exp,self.BATCH_SIZE,self.TIMEOUT,self.MAX_RETRY,self.SLEEP))
+        if results:
+            df_tmps = [get_df_tmp(contract) for contract in results]
+            if not all(df_tmp is None for df_tmp in df_tmps):
+                df = pd.concat(df_tmps,axis=0)
+        return df
+    
+    def get_contracts_in_exp_pooling(self,list_args_params):
+        df = pd.DataFrame()
+        with Pool(processes=self.PROCESSES) as pool:
+            results = pool.map(self._get_contracts_in_exp_async,list_args_params)
+        if results:
+            for df_res in results:
+                if df_res is not None:
+                    df = pd.concat(df_res,axis=0)
+        return df
+
