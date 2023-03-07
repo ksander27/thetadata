@@ -1,26 +1,20 @@
-from wrapper import Option,NoDataForContract,fetch_all_contracts
+#from tdwrapper.wrapper import Option,fetch_all_contracts
 
-import pandas as pd 
-import asyncio 
+from option import Option
+from async_fetch import fetch_all_contracts
+from wrapper import NoDataForContract
+
+import asyncio
+import pandas as pd
 from datetime import datetime, timedelta
 import os
 
+YESTERDAY = datetime.now() - timedelta(days=1)
 
-
-def isFile(_filename):
-    if os.path.exists(_filename):
-        print(f"[+] {_filename} already exists.")
-        return True
-    else:
-        print(f"\n[+] Building contracts for {exp}")
-        return False
-
-# ----------------- #
-
-def prepare_contracts_in_exp_from_list_args_params(list_args_params):
+def prepare_contracts_in_exp_from_list_args_params(list_async_params):
     contracts_in_exp = []
-    for args_params in list_args_params:
-        args,_params,method = args_params.get("args"),args_params.get("params"),args_params.get("method")
+    for args_params in list_async_params:
+        args,_params,method = args_params.get("contract"),args_params.get("params"),args_params.get("method")
         params = {"method":method,"params":_params}
         args["_async"] = True 
         option = Option(**args)
@@ -51,8 +45,34 @@ def get_df_tmp(contract):
         for k,v in params.items():
             df_tmp[k] = v
         return df_tmp
+    
+def isFile(_filename,exp):
+    if os.path.exists(_filename):
+        print(f"[+] {_filename} already exists.")
+        return True
+    else:
+        print(f"\n[+] Building contracts for {exp}")
+        return False
+    
+def isStorage(root,endpoint):
+    DIR = f"/home/jupyter/data/{root}/{endpoint}"
+    if os.path.exists(DIR):
+        print(f"[+] {DIR} already exists.")
+    else:
+        os.makedirs(DIR)
+        print(f"Created {DIR}")
+    return None
 
 # ----------------- #
+
+def get_desired_expirations(root,min_exp_date,max_exp_date):
+    option = Option(root=root)
+    expirations = [str(expiration.get("expirations")) for expiration in option.get_list_expirations()]
+
+    # Get desired_expirations - improve to allow picking 
+    exp_range = pd.date_range(min_exp_date,max_exp_date,freq='WOM-3FRI')
+    desired_expirations = [exp for exp in exp_range.strftime('%Y%m%d').to_list() if exp in expirations]
+    return desired_expirations
 
 def get_implied_vol_date_range(root,exp,strike=None,right=None, daysAgo=100):
     # This check should happen at the module level
@@ -95,27 +115,26 @@ def get_strikes(root,exp):
     strikes = option.get_list_strikes()
     return strikes  
 
+# ------------------------#
+
 def get_list_args_params_from_df(df,main_params,method):
     list_args = df[["root","exp","strike","right"]].to_dict(orient="records")
     cols_params = ["start_date","end_date"] + list(main_params.keys())
     list_params = df[cols_params].to_dict(orient="records")
-    list_args_params = [{"args":args
+    list_args_params = [{"contract":args
                          ,"params":list_params[idx]
                          ,"method":method} 
                         for idx,args in enumerate(list_args) ]
     return list_args_params
-  
 
-# ------------------------#
-
-def data_preparation_on_exp_contract(df,main_params,strikeMultiple,daysAgo,freq='MS'):
+def data_preparation_on_exp_contract(exp,df,main_params,strikeMultiple,daysAgo,freq='MS'):
     # Keep only good strikes                            
     strikeMultiple = 5
     df["strike"] /= 1000
     df = df[df['strike'] % strikeMultiple == 0]
 
     # Calculate the cut-off date n business days ago from the expiration date
-    df["implied_volatility"] = df.implied_volatility.astype(str)
+    df.loc[:, "implied_volatility"] = df["implied_volatility"].astype(str)
     df['exp_dt'] = pd.to_datetime(df['exp'], format='%Y%m%d')
     df["implied_volatility_dt"] = pd.to_datetime(df['implied_volatility'], format='%Y%m%d')
     df['cut_off'] = df['exp_dt'] - pd.tseries.offsets.BDay(daysAgo)
@@ -144,43 +163,10 @@ def data_preparation_on_exp_contract(df,main_params,strikeMultiple,daysAgo,freq=
     #df.to_csv('./weekly_batch.csv', index=False)
     return df
 
-BATCH_SIZE,TIMEOUT,MAX_RETRY,SLEEP = 150,4,3,20
-YESTERDAY = datetime.now() - timedelta(days=1)
-
-root = "AAPL"
-call_type = "at_time"
-endpoint = "greeks"
-main_params = {
-    "s_of_day": 12 * 3600
-}
-
-daysAgo = 100
-freq = 'W-MON'
-strikeMultiple = 5
-min_exp_date = "2020-01-01"
-max_exp_date = "2023-06-01"
-
-# Init get method and check dir
-method = f"get_{call_type}_{endpoint}"
-DIR = f"/home/jupyter/data/{root}/{endpoint}"
-
-if __name__=='__main__':
-    if os.path.exists(DIR):
-        print(f"[+] {DIR} already exists.")
-    else:
-        os.makedirs(DIR)
-        print(f"Created {DIR}")
-        
-    # Init expiration
-    option = Option(root=root)
-    expirations = [str(expiration.get("expirations")) for expiration in option.get_list_expirations()]
-    
-    # Get desired_expirations - improve to allow picking 
-    exp_range = pd.date_range(min_exp_date,max_exp_date,freq='WOM-3FRI')
-    desired_expirations = [exp for exp in exp_range.strftime('%Y%m%d').to_list() if exp in expirations]
-
+# ---------------------------#
+def get_exp_data(root,exp):
     # Get options with url and params
-    for exp in desired_expirations:        
+       
         # Create a date range of n days starting from the input exp - check with TD if there are data basically.
         date_range = get_implied_vol_date_range(root,exp)
         if date_range:
@@ -188,31 +174,29 @@ if __name__=='__main__':
             # Check if file already exists
             start_date = date_range[0]
             _filename = f"./data/{root}/{endpoint}/{root}_{exp}_{start_date}_{exp}"
-            if not isFile(_filename):
+            if not isFile(_filename,exp):
                 # Getting all dates with implied volatility for each contract in exp
                 strikes = [int(int(dict_strike.get("strikes"))/1000) for dict_strike in get_strikes(root,exp)]
-                list_args_params = [{"args":{"root":root
-                                             ,"exp":exp
-                                             ,"right":right
-                                             ,"strike":strike}
+                list_args_params = [{"contract":{"root":root,"exp":exp,"right":right,"strike":strike}
                                      ,"params":{}
-                                     ,"method":"get_list_dates_implied_volatility"} 
+                                     ,"method":"get_list_dates_implied_volatility"}
+                                     
                                     for strike in strikes 
                                     for right in ["call","put"]]
-                
-                # Fetching response to get all the dates per contract                  
+
+                # Fetching response to get all the dates per contract                
                 df = get_contracts_in_exp_async(list_args_params,BATCH_SIZE,TIMEOUT,MAX_RETRY,SLEEP)                 
-                print(f"[+] Total {df.shape[0]} contracts with dates in {exp}")                      
+                print(f"[+] Total {df.shape[0]} contracts with dates in {exp}")                    
 
-                # Prep data - potential weekly batch instead of monthly?
+
                 if df is not None:
-                    df = data_preparation_on_exp_contract(df,main_params,strikeMultiple,daysAgo,freq) 
-
                     # Build list of args and params
+                    df = data_preparation_on_exp_contract(exp,df,main_params,strikeMultiple,daysAgo,freq) 
                     list_args_params = get_list_args_params_from_df(df,main_params,method)
-                            
+
                     # Fetching data for method
                     print(f"[+] Fetching asynchronously data for {exp}")  
+                    #list_args_params = list_args_params[:50]
                     df = get_contracts_in_exp_async(list_args_params,BATCH_SIZE,TIMEOUT,MAX_RETRY,SLEEP)
                     if df is not None:
                         print(f"[+] Fetched {df.shape[0]} contracts with dates in {exp}")
@@ -220,3 +204,35 @@ if __name__=='__main__':
                         print(f"[+] Saved {_filename}")
                     else:
                         print(f"[+] NO DATA - Nothing to save for {_filename}") 
+
+
+BATCH_SIZE,TIMEOUT,MAX_RETRY,SLEEP = 128,5,3,20
+
+
+
+roots = ["AMD","MSFT","AAPL","NVDA","TSLA","GOOGL","META","AMZN","GS","JPM","TSM","INTC","C","MS","BAC"]
+
+call_type = "at_time"
+endpoint = "greeks"
+method = f"get_{call_type}_{endpoint}"
+main_params = {
+    "s_of_day": 12 * 3600
+}
+
+daysAgo = 100
+freq = 'W-MON' #'MS'
+strikeMultiple = 5
+min_exp_date = "2020-01-01"
+max_exp_date = "2023-07-01"
+
+
+if __name__=='__main__':
+    for root in roots:
+
+        _ = isStorage(root,endpoint)
+        
+        desired_expirations = get_desired_expirations(root,min_exp_date,max_exp_date)
+        tup_args = [(root,exp) for exp in desired_expirations]
+        for root,exp in tup_args:
+            _ = get_exp_data(root,exp)
+            
