@@ -23,9 +23,7 @@ async def _fetch_task(contract, session, TIMEOUT):
         except NoDataForContract:
             print(f"[+] No data data for contract - {contract.__str__()} - {contract.params}")
             return {"data": None, "url": None, "params": None}
-        # except asyncio.TimeoutError:
-        #     print(f"[+] Timed out for contract - {contract.__str__()} - {contract.params}")
-        #     raise asyncio.TimeoutError
+        
         except Exception as e:
             print(f"Failed to fetch data for contract - {contract.__str__()} - {contract.params}")
             raise e
