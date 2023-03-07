@@ -9,14 +9,6 @@ import asyncio
 import pandas as pd
 import os
 
-
-
-# ----------------- #
-# Specific for this script -> should be incorporated to the script
-
-
-
-
 # ---------------------------#
 
 class DownloadManager():
