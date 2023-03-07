@@ -31,7 +31,7 @@ async def _fetch_task(contract, session,TIMEOUT):
         print(f"Failed to fetch data for contract - {contract.__str__()} - {contract.params}")
         raise e
 
-async def fetch_batch(contracts,batch_size,TIMEOUT):
+async def _fetch_batch(contracts,batch_size,TIMEOUT):
     tasks = []
     connector = aiohttp.TCPConnector(limit_per_host=batch_size)
     async with aiohttp.ClientSession(connector=connector) as session:
@@ -53,7 +53,7 @@ async def fetch_all_contracts(contracts_in_exp, batch_size=32, TIMEOUT=5, MAX_RE
             j = 0
             while j < len(contracts_in_exp):
                 contracts = contracts_in_exp[j:j+batch_size]
-                results = await fetch_batch(contracts, batch_size,TIMEOUT)
+                results = await _fetch_batch(contracts, batch_size,TIMEOUT)
                 data.extend(results)
                 j+=batch_size
             break
