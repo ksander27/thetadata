@@ -90,7 +90,7 @@ class AsyncFetcher():
         async with aiohttp.ClientSession(connector=connector) as session:
             for contract in contracts:
                 
-                task = asyncio.create_task(self._fetch_task(contract, session, self.TIMEOUT))
+                task = asyncio.create_task(self._fetch_task(contract, session))
                 tasks.append(task)
             results = await asyncio.gather(*tasks)
         return results
