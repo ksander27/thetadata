@@ -12,7 +12,7 @@ def get_desired_expirations(root,min_exp_date,max_exp_date,freq_exp='monthly'):
     if 'mon' in freq_exp.lower():
         freq_exp = 'WOM-3FRI'
     elif 'wee' in freq_exp.lower():
-        freq_exp = 'W-MON,W-WED,W-FRI'
+        freq_exp = ['W-MON', 'W-WED', 'W-FRI']
     else:
         raise ValueError("freq_exp must be Monthly or Weekly")
 
