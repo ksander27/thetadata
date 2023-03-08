@@ -13,7 +13,7 @@ class Option(Option):
         
     def get_iv_dates_from_days_ago(self, days_ago: int) -> Optional[List[str]]:
         """
-        Get a list of dates of implied volatility for the option expiring `days_ago` days ago.
+        Get a list of dates of implied volatility betweem the option exp and `days_ago` days ago.
 
         Parameters:
         -----------

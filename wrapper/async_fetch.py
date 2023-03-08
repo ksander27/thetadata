@@ -129,7 +129,7 @@ class AsyncFetcher():
                 
                 while last_success_batch_idx < len(contracts_in_exp):
                     contracts = contracts_in_exp[last_success_batch_idx:last_success_batch_idx+self.BATCH_SIZE]
-                    results = await self._fetch_batch(contracts, self.BATCH_SIZE, self.TIMEOUT)
+                    results = await self._fetch_batch(contracts)
                     data.extend(results)
                     last_success_batch_idx += self.BATCH_SIZE
                 break
