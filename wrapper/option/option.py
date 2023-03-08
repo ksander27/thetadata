@@ -24,8 +24,10 @@ class Option(Option):
         if self.strike and self.right:
             args["strike"] = self.strike
             args["right"] = self.right
-        else:
+        elif self.strike or self.right:
             raise ValueError("[+] We need a strike and a right")
+        else:
+            pass
 
         _exp = datetime.strptime(self._exp, '%Y%m%d')
         if YESTERDAY > _exp:
