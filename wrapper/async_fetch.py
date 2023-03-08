@@ -54,6 +54,7 @@ class AsyncFetcher():
                     return {"data": data, "url": contract.url, "params": contract.params}
 
             except NoDataForContract:
+                print(contract.url,contract.params)
                 print(f"[+] No data data for contract - {contract.__str__()} - {contract.params}")
                 return {"data": None, "url": None, "params": None}
             
