@@ -5,7 +5,17 @@ import pandas as pd
 
 YESTERDAY = datetime.now() - timedelta(days=1)
 
-def get_desired_expirations(root,min_exp_date,max_exp_date,freq_exp='WOM-3FRI'):
+def get_desired_expirations(root,min_exp_date,max_exp_date,freq_exp='monthly'):
+    if not isinstance(freq_exp,str):
+        raise TypeError("freq_exp must be a str")
+    
+    if 'mon' in freq_exp.lower():
+        freq_exp = 'WOM-3FRI'
+    elif 'wee' in freq_exp.lower():
+        freq_exp = 'W-MON,W-WED,W-FRI'
+    else:
+        raise ValueError("freq_exp must be Monthly or Weekly")
+
     option = Option(root=root)
     expirations = [str(expiration.get("expirations")) for expiration in option.get_list_expirations()]
 
