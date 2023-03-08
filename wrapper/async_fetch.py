@@ -1,68 +1,153 @@
 import asyncio 
 import aiohttp
 from .wrapper import NoDataForContract
+from .option.option import Option
+from .stock.stock import Stock
+from typing import List,Dict,Union,Any
 
-
-
-# Last time it run fine - DO NOT TOUCH
-async def _fetch_task(contract, session, TIMEOUT):
-    r = await session.get(contract.url, params=contract.params, timeout=TIMEOUT)
-    if r.status != 200:
-        r.raise_for_status()
-    else:
-        try:
-            _ = await r.json()
-            contract.header = _.get("header")
-            contract.response = _.get("response")
-
-            if contract._parse_header():
-                data = contract._parse_response()
-                print(f"[+] Fetched data for contract - {contract.__str__()} - {contract.params}")
-                return {"data": data, "url": contract.url, "params": contract.params}
-
-        except NoDataForContract:
-            print(f"[+] No data data for contract - {contract.__str__()} - {contract.params}")
-            return {"data": None, "url": None, "params": None}
+class AsyncFetcher():
+    def __init__(self,BATCH_SIZE=128,TIMEOUT=5,MAX_RETRY=3,SLEEP=20):
         
-        except Exception as e:
-            print(f"Failed to fetch data for contract - {contract.__str__()} - {contract.params}")
-            raise e
+        self.BATCH_SIZE = BATCH_SIZE
+        self.TIMEOUT = TIMEOUT
+        self.MAX_RETRY = MAX_RETRY
+        self.SLEEP = SLEEP
 
-async def _fetch_batch(contracts, batch_size, TIMEOUT):
-    tasks = []
-    connector = aiohttp.TCPConnector(limit_per_host=batch_size)
-    async with aiohttp.ClientSession(connector=connector) as session:
-        for contract in contracts:
-            
-            task = asyncio.create_task(_fetch_task(contract, session, TIMEOUT))
-            tasks.append(task)
-        results = await asyncio.gather(*tasks)
-    return results
+    async def _fetch_task(self, contract, session):
+        """
+        Fetches data for a single contract asynchronously.
 
-async def fetch_all_contracts(contracts_in_exp, batch_size=32, TIMEOUT=5, MAX_RETRY=2, SLEEP=20):
-    """
-    Fetch data for all contracts asynchronously.
-    """
-    data = []
-    i, attempt,last_success_batch_idx = MAX_RETRY, 0,0
-    while i > 0:
-        try:
+        Parameters:
+        -----------
+        contract : Contract
+            The Contract object to fetch data for.
+        session : aiohttp.ClientSession
+            The aiohttp ClientSession object to use for making the request.
+
+        Returns:
+        --------
+        dict:
+            A dictionary containing the fetched data, the URL used for the request, and the parameters used for the request.
+
+        Raises:
+        -------
+        NoDataForContract:
+            If there is no data available for the specified contract.
+
+        Example:
+        --------
+        N/A
+        """
+
+        r = await session.get(contract.url, params=contract.params, timeout=self.TIMEOUT)
+        if r.status != 200:
+            r.raise_for_status()
+        else:
+            try:
+                _ = await r.json()
+                contract.header = _.get("header")
+                contract.response = _.get("response")
+
+                if contract._parse_header():
+                    data = contract._parse_response()
+                    print(f"[+] Fetched data for contract - {contract.__str__()} - {contract.params}")
+                    return {"data": data, "url": contract.url, "params": contract.params}
+
+            except NoDataForContract:
+                print(f"[+] No data data for contract - {contract.__str__()} - {contract.params}")
+                return {"data": None, "url": None, "params": None}
             
-            while last_success_batch_idx < len(contracts_in_exp):
-                contracts = contracts_in_exp[last_success_batch_idx:last_success_batch_idx+batch_size]
-                results = await _fetch_batch(contracts, batch_size, TIMEOUT)
-                data.extend(results)
-                last_success_batch_idx += batch_size
-            break
-        except asyncio.TimeoutError:
-            i -= 1
-            TIMEOUT += TIMEOUT
-            SLEEP += SLEEP
-            attempt += 1
-            if i>0:
-                print(f"[+] Timed out {attempt}/{MAX_RETRY} .. going to sleep")
-                await asyncio.sleep(SLEEP)
-    else:
-        print(f"[+] Max retries reached. Giving up")
-        raise asyncio.TimeoutError
-    return data
+            except Exception as e:
+                print(f"Failed to fetch data for contract - {contract.__str__()} - {contract.params}")
+                raise e
+            
+    async def _fetch_batch(self, contracts: List[Option]) -> List[Dict[str, Union[Any, str]]]:
+        """
+        Fetch data for a batch of contracts asynchronously.
+
+        Parameters:
+        -----------
+        contracts : List[Contract]
+            A list of Contract objects to fetch data for.
+
+        Returns:
+        --------
+        List[Dict[str, Union[Any, str]]]
+            A list of dictionaries containing the fetched data, the URL used for the request, and the parameters used for the request.
+
+        Raises:
+        -------
+        N/A
+
+        Example:
+        --------
+        contracts = [Contract('AAPL', 'STK', 'SMART', 'USD'), Contract('GOOG', 'STK', 'SMART', 'USD')]
+        async_fetcher = AsyncFetcher()
+        results = await async_fetcher._fetch_batch(contracts)
+        """
+        tasks = []
+        connector = aiohttp.TCPConnector(limit_per_host=self.BATCH_SIZE)
+        async with aiohttp.ClientSession(connector=connector) as session:
+            for contract in contracts:
+                
+                task = asyncio.create_task(self._fetch_task(contract, session, self.TIMEOUT))
+                tasks.append(task)
+            results = await asyncio.gather(*tasks)
+        return results
+            
+    async def fetch_all_contracts(self,contracts_in_exp: List[Option]) -> List[Dict[str, Union[None, List[Any]]]]:
+        """
+        Fetches data for all contracts asynchronously.
+
+        Parameters:
+        -----------
+        contracts_in_exp : List[Contract] (Option or Stock)
+            List of Contract objects for which data needs to be fetched.
+
+        Returns:
+        --------
+        List[Dict[str, Union[None, List[Any]]]]
+            A list of dictionaries containing fetched data, URL, and parameters for each contract in `contracts_in_exp`. 
+            If no data is available for a contract, then the dictionary will contain None values.
+
+        Raises:
+        -------
+        asyncio.TimeoutError:
+            If the maximum number of retries have been exceeded.
+
+        Example:
+        --------
+        >>> fetcher = AsyncFetcher()
+        >>> contracts = [Contract("SPY", "202201", "C", 400), Contract("AAPL", "202201", "C", 150)]
+        >>> data = asyncio.run(fetcher.fetch_all_contracts(contracts))
+
+        """
+        data = []
+        i, attempt,last_success_batch_idx = self.MAX_RETRY, 0,0
+        while i > 0:
+            try:
+                
+                while last_success_batch_idx < len(contracts_in_exp):
+                    contracts = contracts_in_exp[last_success_batch_idx:last_success_batch_idx+self.BATCH_SIZE]
+                    results = await self._fetch_batch(contracts, self.BATCH_SIZE, self.TIMEOUT)
+                    data.extend(results)
+                    last_success_batch_idx += self.BATCH_SIZE
+                break
+            except asyncio.TimeoutError:
+                i -= 1
+                self.TIMEOUT += self.TIMEOUT
+                self.SLEEP += self.SLEEP
+                attempt += 1
+                if i>0:
+                    print(f"[+] Timed out {attempt}/{self.MAX_RETRY} .. going to sleep")
+                    await asyncio.sleep(self.SLEEP)
+        else:
+            print(f"[+] Max retries reached. Giving up")
+            raise asyncio.TimeoutError
+        return data
+
+
+
+
+
+
