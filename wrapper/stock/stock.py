@@ -1,6 +1,6 @@
 from typing import List
-from .utils import _format_date,_format_ivl,_isDateRangeValid
-from .wrapper import MyWrapper
+from ..utils import _format_date,_format_ivl,_isDateRangeValid
+from ..wrapper import MyWrapper
 
 
 class Stock(MyWrapper):

@@ -1,5 +1,6 @@
-test.py
+test
+app.py
 dockerfile
+dump.py
 entrypoint.sh
 run_jup.sh
-dump.py
