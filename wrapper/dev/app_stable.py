@@ -1,10 +1,9 @@
-from tdwrapper.wrapper import Option,fetch_all_contracts
-import asyncio
+from tdwrapper.wrapper import Option,NoDataForContract,fetch_all_contracts
+import asyncio 
 import pandas as pd
 from datetime import datetime, timedelta
 import os
 
-YESTERDAY = datetime.now() - timedelta(days=1)
 
 def prepare_contracts_in_exp_from_list_args_params(list_async_params):
     contracts_in_exp = []
@@ -129,7 +128,7 @@ def data_preparation_on_exp_contract(exp,df,main_params,strikeMultiple,daysAgo,f
     df = df[df['strike'] % strikeMultiple == 0]
 
     # Calculate the cut-off date n business days ago from the expiration date
-    df.loc[:, "implied_volatility"] = df["implied_volatility"].astype(str)
+    df["implied_volatility"] = df.implied_volatility.astype(str)
     df['exp_dt'] = pd.to_datetime(df['exp'], format='%Y%m%d')
     df["implied_volatility_dt"] = pd.to_datetime(df['implied_volatility'], format='%Y%m%d')
     df['cut_off'] = df['exp_dt'] - pd.tseries.offsets.BDay(daysAgo)
@@ -191,7 +190,7 @@ def get_exp_data(root,exp):
 
                     # Fetching data for method
                     print(f"[+] Fetching asynchronously data for {exp}")  
-                    #list_args_params = list_args_params[:50]
+                    list_args_params = list_args_params[:50]
                     df = get_contracts_in_exp_async(list_args_params,BATCH_SIZE,TIMEOUT,MAX_RETRY,SLEEP)
                     if df is not None:
                         print(f"[+] Fetched {df.shape[0]} contracts with dates in {exp}")
@@ -201,11 +200,14 @@ def get_exp_data(root,exp):
                         print(f"[+] NO DATA - Nothing to save for {_filename}") 
 
 
-BATCH_SIZE,TIMEOUT,MAX_RETRY,SLEEP = 512,120,3,20
+
+# ------------------------------ #
 
 
+BATCH_SIZE,TIMEOUT,MAX_RETRY,SLEEP,PROC = 128,5,5,5,4
+YESTERDAY = datetime.now() - timedelta(days=1)
 
-roots = ["AAPL","NVDA","TSLA","GOOGL","META","AMZN","GS","JPM","TSM","INTC","C","MS","BAC"] #"AMD","MSFT",
+roots = ["MSFT"]
 
 call_type = "at_time"
 endpoint = "greeks"
@@ -215,7 +217,7 @@ main_params = {
 }
 
 daysAgo = 100
-freq = 'D' #'MS'
+freq = 'W-MON' #'MS'
 strikeMultiple = 5
 min_exp_date = "2020-01-01"
 max_exp_date = "2023-07-01"
@@ -231,3 +233,4 @@ if __name__=='__main__':
         for root,exp in tup_args:
             _ = get_exp_data(root,exp)
             
+
