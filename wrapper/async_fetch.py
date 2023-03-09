@@ -162,7 +162,7 @@ class AsyncDownloader(AsyncFetcher):
 
         return list_async_params
     
-    def prepare_contracts_from_list_args_params(self):
+    def prepare_contracts_from_list_async_params(self):
         contracts = []
         for args_params in self.list_async_params:
             args,_params,method = args_params.get("contract"),args_params.get("params"),args_params.get("method")
@@ -195,8 +195,8 @@ class AsyncDownloader(AsyncFetcher):
         """
         df = None 
         self.list_async_params = self.get_list_async_params_from_batches()
-        contracts_in_exp = self.prepare_contracts_from_list_args_params() 
-        results = asyncio.run(self.fetch_all_contracts(contracts_in_exp))
+        contracts = self.prepare_contracts_from_list_async_params() 
+        results = asyncio.run(self.fetch_all_contracts(contracts))
         if results:
             df_tmps = [self.get_df_tmp(contract) for contract in results]
             if not all(df_tmp is None for df_tmp in df_tmps):
