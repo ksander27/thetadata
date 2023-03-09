@@ -43,6 +43,7 @@ class ExpiryBatcher(BatchManager):
         
     def prepare_dates(self,df_dates):
         # Normalize strike 
+
         df_dates["strike"] /=1000
         # Calculate the cut-off date n business days ago from the expiration date
         df_dates["implied_volatility"] = df_dates["implied_volatility"].astype(str)
@@ -52,6 +53,7 @@ class ExpiryBatcher(BatchManager):
         df_dates['is_within_n_business_days_ago'] = df_dates['implied_volatility_dt'] > df_dates['cut_off']
         df_dates = df_dates[df_dates['is_within_n_business_days_ago'] == True]
 
+        df_dates.to_csv('./debug.csv')
         df_dates = df_dates.rename(columns={"implied_volatility_dt":"dt_key"
                                                   ,"implied_volatility":"dt"})
         

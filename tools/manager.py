@@ -99,7 +99,7 @@ class ExpiryManager(AppManager):
                                                                     for right in ["call","put"]])
 
                 # Fetching response to get all the dates per contract      
-                method,key_params = "get_list_dates_implied_volatility",{}
+                method,key_params = "get_list_dates_implied_volatility",[]
                 downloader = AsyncDownloader(batches=df_batches,method=method,key_params=key_params
                                 ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT,max_retry=self.MAX_RETRY,sleep=self.SLEEP)    
                 df_dates = downloader.async_download_contracts()               
