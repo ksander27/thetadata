@@ -1,3 +1,3 @@
 from .downloader import AsyncDownloader
-from .transformer import BatchManager,ExpiryBatcher
-from .manager import AppManager,ExpiryManager
+from .transformer import ExpiryBatcher
+from .manager import ExpiryManager
