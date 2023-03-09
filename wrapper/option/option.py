@@ -191,6 +191,7 @@ class Option(Option):
             raise OptionError("[+] An expiration is required to get the desired strikes")
         
         try:
+            strike_multiple *=1000
             strikes = self.get_list_strikes()
             
             if len(strikes)>0:
