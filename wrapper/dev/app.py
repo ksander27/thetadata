@@ -2,7 +2,7 @@
 
 from ..option.option import Option
 from ..utils import _format_date
-from ..async_fetch import AsyncDownloader
+from ..downloader import AsyncDownloader
 
 import pandas as pd
 import os
