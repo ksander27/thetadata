@@ -155,12 +155,12 @@ class AsyncDownloader(AsyncFetcher):
         list_args = self.batches[["root","exp","strike","right"]].to_dict(orient="records")
 
         list_params = self.batches[self.key_params].to_dict(orient="records")
-        list_async_params = [{"contract":args
+        self.list_async_params = [{"contract":args
                         ,"params":list_params[idx] if len(list_params)>0 else None
                         ,"method":self.method} 
                         for idx,args in enumerate(list_args)]
 
-        return list_async_params
+        return self.list_async_params
     
     def prepare_contracts_from_list_async_params(self):
         contracts = []
