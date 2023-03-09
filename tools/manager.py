@@ -116,7 +116,7 @@ class ExpiryManager(AppManager):
                     key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
 
                     # Fetching data for method
-                    print(f"[+] Fetching asynchronously data for {self.exp}")  
+                    print(f"[+] Fetching asynchronously data for {self.filename}")  
                     downloader = AsyncDownloader(batches=df_batches,method=method,key_params=key_params
                                                 ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
                                                  ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
