@@ -24,7 +24,7 @@ class AppManager():
         return self.method
 
     def _get_DIR(self):
-        self._DIR = f"/home/jupyter/data/{self.call_type}/{self.endpoint}/{self.root}/"
+        self._DIR = f"/home/jupyter/data/{self.call_type}/{self.endpoint}/{self.root}"
         return self._DIR
     
     def _get_file(self):
@@ -32,7 +32,8 @@ class AppManager():
         return self._file
     
     def get_filename(self):    
-        self.filename = f"{self._DIR}/{self._file}.csv" 
+
+        self.filename = f"{self._get_DIR()}/{self._get_file()}.csv" 
         return self.filename
     
     def isFile(self):
