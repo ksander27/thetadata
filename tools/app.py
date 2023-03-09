@@ -3,7 +3,7 @@ from . import AppManager
 
 # ------------------------------ #
 
-roots = ["AAPL","AMZN","NVDA"]
+roots = ["AAPL","AMZN","NVDA","TSLA"]
 
 args_app_manager = {
     "call_type":"hist"
