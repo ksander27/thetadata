@@ -36,6 +36,7 @@ class AppManager():
         return self.filename
     
     def isFile(self):
+        _ = self.get_filename()
         if os.path.exists(self.filename):
             print(f"[+] {self.filename} already exists.")
             return True
