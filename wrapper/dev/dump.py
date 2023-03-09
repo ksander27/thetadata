@@ -217,13 +217,55 @@ if __name__=='__main__':
         break
 
 
+######
 
+class ExpiryBatcher(BatchManager):
+    def __init__(self,exp,df_dates,days_ago,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.exp = exp
+        self.df_dates = df_dates
+        self.days_ago
+        
+    def prepare_dates(self):
+        # Calculate the cut-off date n business days ago from the expiration date
+        self.df_dates["implied_volatility"] = self.df_dates["implied_volatility"].astype(str)
+        self.df_dates['exp_dt'] = pd.to_datetime(self.df_dates['exp'], format='%Y%m%d')
+        self.df_dates["implied_volatility_dt"] = pd.to_datetime(self.df_dates['implied_volatility'], format='%Y%m%d')
+        self.df_dates['cut_off'] = self.df_dates['exp_dt'] - pd.tseries.offsets.BDay(self.days_ago)
+        self.df_dates['is_within_n_business_days_ago'] = self.df_dates['implied_volatility_dt'] > self.df_dates['cut_off']
+        self.df_dates = self.df_dates[self.df_dates['is_within_n_business_days_ago'] == True]
 
-
+        self.df_dates = self.df_dates.rename(columns={"implied_volatility_dt":"key_dt"
+                                                  ,"implied_volatility":"dt"})
+        
+        print(f"[+] Filtered {self.df_dates.shape[0]} contracts with dates in {self.exp}")
+        return self.df_dates
+    
+    
+    def get_batches(self):
+        return self.make_batches(self.df_dates)
                     
 
 
+##############
+                if df is not None:
+                    # Build list of args and params
+                    batcher = ExpiryBatcher(df_dates=df_dates,freq_batch=freq_batch,days_ago=days_ago
+                                            ,endpoint_params=endpoint_params)
+                    df_batches = batcher.get_batches()
+                    method = f"get_{call_type}_{endpoint}"
+                    key_params = ["start_date","end_date"] + endpoint_params.keys()
+                    print(key_params)
 
+                    # Fetching data for method
+                    print(f"[+] Fetching asynchronously data for {exp}")  
+                    df = get_contracts_in_exp_async(df_batches,method,key_params,BATCH_SIZE,TIMEOUT,MAX_RETRY,SLEEP)
+                    if df is not None:
+                        print(f"[+] Fetched {df.shape[0]} contracts with dates in {exp}")
+                        df.to_csv(_filename,index=False)
+                        print(f"[+] Saved {_filename}")
+                    else:
+                        print(f"[+] NO DATA - Nothing to save for {_filename}") 
 
 
             
