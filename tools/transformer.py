@@ -60,7 +60,7 @@ class ExpiryBatcher(BatchManager):
         
         print(f"[+] Filtered {df_dates.shape[0]} contracts with dates in {self.exp}")
 
-        if not df_dates.empty():
+        if not df_dates.empty:
             return df_dates
         else:
             raise ValueError("[+] Expiry Batcher - all dates are filtered.")
