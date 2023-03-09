@@ -1,7 +1,7 @@
 from typing import List
 
-from .utils import _format_date,_format_ivl,_isDateRangeValid
-from .wrapper import MyWrapper
+from ..utils import _format_date,_format_ivl,_isDateRangeValid
+from ..wrapper import MyWrapper
 
 class OptionError(Exception):
     pass
@@ -31,8 +31,19 @@ class Option(MyWrapper):
             return f"{self.root}_{self.exp}_{self.right}_{self.strike}"
         else:
             return None
-
+        
     # Helper
+    def _get_method(self,method,params=None):
+        if not params:
+            params = {}
+
+        func = getattr(self, method)
+        data = func(**params)
+        if self._async:
+            return self
+        else:
+            return data
+    
     def _format_right(self):
         if self.right is None:
             return None
@@ -49,8 +60,8 @@ class Option(MyWrapper):
     def _format_strike(self):
         if self.strike is None:
             return None
-        if not isinstance(self.strike, int):
-            raise StrikeError("Strike price must be an integer")
+        if not isinstance(self.strike, int) and not isinstance(self.strike, float):
+            raise StrikeError("Strike price must be an integer or a float")
         if self.strike < 0:
             raise StrikeError("Strike price must be non-negative")
         return int(self.strike*1000)
@@ -82,6 +93,9 @@ class Option(MyWrapper):
             _type_: List of dates
         """
         self.call_type = "list"
+        if not _format_date(self.exp):
+            raise OptionError("Expiry is not valide")
+        
         self.url = f"{self.base_url}/{self.call_type}/dates/{self.sec_type}/{self.req_type}"
         self.params = {
             "root":self.root

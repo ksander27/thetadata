@@ -1,4 +1,2 @@
-test.py
-dockerfile
-entrypoint.sh
-run_jup.sh
+scripts
+test
