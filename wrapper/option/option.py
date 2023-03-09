@@ -194,7 +194,7 @@ class Option(Option):
             if len(strikes)>0:
                 df = pd.DataFrame(strikes)
                 df = df[df["strikes"] % strike_multiple == 0]
-                desired_strikes = df.strikes.values
+                desired_strikes = df.strikes.values/1000
             return desired_strikes
         
         except NoDataForContract:

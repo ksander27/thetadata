@@ -1,4 +1,4 @@
-from tdwrapper.wrapper import Option,NoDataForContract,fetch_all_contracts
+from tdwrapper.wrapper import Option,NoDataForContract,AsyncDownloader
 import asyncio 
 import pandas as pd
 from datetime import datetime, timedelta
@@ -15,14 +15,13 @@ def prepare_contracts_in_exp_from_list_args_params(list_async_params):
         contracts_in_exp.append(option._get_method(**params))
     return contracts_in_exp
 
-def get_contracts_in_exp_async(list_args_params,BATCH_SIZE,TIMEOUT,MAX_RETRY,SLEEP):
-    contracts_in_exp = prepare_contracts_in_exp_from_list_args_params(list_args_params) 
-    results = asyncio.run(fetch_all_contracts(contracts_in_exp,BATCH_SIZE,TIMEOUT,MAX_RETRY,SLEEP))
-    if results:
-        df_tmps = [get_df_tmp(contract) for contract in results]
-        if not all(df_tmp is None for df_tmp in df_tmps):
-            df = pd.concat(df_tmps,axis=0)
-    return df
+def get_contracts_in_exp_async(batches,method,key_params,BATCH_SIZE,TIMEOUT,MAX_RETRY,SLEEP):
+
+    downloader = AsyncDownloader(batches=batches,method=method,key_params=key_params
+                                ,batch_size=BATCH_SIZE,timeout=TIMEOUT,max_retry=MAX_RETRY,sleep=SLEEP)
+    
+    results = downloader.async_download_contracts()
+    return results
 
 def get_df_tmp(contract):
     url = contract.get("url")
@@ -171,15 +170,14 @@ def get_exp_data(root,exp):
             if not isFile(_filename,exp):
                 # Getting all dates with implied volatility for each contract in exp
                 strikes = [int(int(dict_strike.get("strikes"))/1000) for dict_strike in get_strikes(root,exp)]
-                list_args_params = [{"contract":{"root":root,"exp":exp,"right":right,"strike":strike}
-                                     ,"params":{}
-                                     ,"method":"get_list_dates_implied_volatility"}
-                                     
-                                    for strike in strikes 
-                                    for right in ["call","put"]]
+                batches = pd.DataFrame([{"root":root,"exp":exp,"right":right,"strike":strike}
+                                                                    for strike in strikes 
+                                                                    for right in ["call","put"]])
 
-                # Fetching response to get all the dates per contract                
-                df = get_contracts_in_exp_async(list_args_params,BATCH_SIZE,TIMEOUT,MAX_RETRY,SLEEP)                 
+                # Fetching response to get all the dates per contract      
+                method,key_params = "get_list_dates_implied_volatility",{}
+                df = get_contracts_in_exp_async(batches,method,key_params
+                                                ,BATCH_SIZE,TIMEOUT,MAX_RETRY,SLEEP)                 
                 print(f"[+] Total {df.shape[0]} contracts with dates in {exp}")                    
 
 
