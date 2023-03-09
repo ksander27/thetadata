@@ -2,8 +2,9 @@ import pandas as pd
 
 
 class BatchManager():
-    def __init__(self,freq_batch):
+    def __init__(self,freq_batch,endpoint_params):
         self.freq_batch = freq_batch 
+        self.endpoint_params = endpoint_params
 
     def make_batches(self,data):
         """
@@ -27,5 +28,10 @@ class BatchManager():
 
         df_batch = df_batch.rename(columns={'dt_first':'start_date'
                                     ,'dt_last':'end_date'})
+        
+        # Adding main parameters
+        for k,v in self.endpoint_params.items():
+            df_batch[k] = v   
+                    
         return df_batch
     
