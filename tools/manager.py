@@ -32,7 +32,7 @@ class AppManager():
         return self._file
     
     def get_filename(self):    
-        self.filename = self._get_DIR() + self._get_file()
+        self.filename = f"{self._DIR}/{self._file}.csv" 
         return self.filename
     
     def isFile(self):
