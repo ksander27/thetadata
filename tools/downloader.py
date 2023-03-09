@@ -1,8 +1,8 @@
 import asyncio 
 import pandas as pd
 
-from wrapper.option.option import Option
-from wrapper.fetcher import AsyncFetcher
+from ..wrapper import Option,AsyncFetcher
+
 
 
 class AsyncDownloader(AsyncFetcher):
