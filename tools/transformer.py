@@ -53,7 +53,8 @@ class ExpiryBatcher(BatchManager):
         df_dates['is_within_n_business_days_ago'] = df_dates['implied_volatility_dt'] > df_dates['cut_off']
         df_dates = df_dates[df_dates['is_within_n_business_days_ago'] == True]
 
-        df_dates.to_csv('./debug.csv')
+        print(df_dates.head())
+        df_dates.to_csv('./debug.csv',index=False)
         df_dates = df_dates.rename(columns={"implied_volatility_dt":"dt_key"
                                                   ,"implied_volatility":"dt"})
         
