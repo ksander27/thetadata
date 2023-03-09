@@ -47,13 +47,13 @@ def get_exp_data(root,exp):
                 option = Option(root,exp)
                 desired_strikes = option.get_desired_strikes(strike_multiple)
 
-                batches = pd.DataFrame([{"root":root,"exp":exp,"right":right,"strike":strike}
+                df_batches = pd.DataFrame([{"root":root,"exp":exp,"right":right,"strike":strike}
                                                                     for strike in desired_strikes 
                                                                     for right in ["call","put"]])
 
                 # Fetching response to get all the dates per contract      
                 method,key_params = "get_list_dates_implied_volatility",{}
-                downloader = AsyncDownloader(batches=batches,method=method,key_params=key_params
+                downloader = AsyncDownloader(batches=df_batches,method=method,key_params=key_params
                                 ,batch_size=BATCH_SIZE,timeout=TIMEOUT,max_retry=MAX_RETRY,sleep=SLEEP)    
                 df_dates = downloader.async_download_contracts()               
                 print(f"[+] Total {df_dates.shape[0]} contracts with dates in {exp}")                    
