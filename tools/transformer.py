@@ -51,10 +51,14 @@ class ExpiryBatcher(BatchManager):
         df_dates["implied_volatility_dt"] = pd.to_datetime(df_dates['implied_volatility'], format='%Y%m%d')
         df_dates['cut_off'] = df_dates['exp_dt'] - pd.tseries.offsets.BDay(self.days_ago)
         df_dates['is_within_n_business_days_ago'] = df_dates['implied_volatility_dt'] > df_dates['cut_off']
-        df_dates = df_dates[df_dates['is_within_n_business_days_ago'] == True]
 
         print(df_dates.head())
         df_dates.to_csv('./debug.csv',index=False)
+        
+        df_dates = df_dates[df_dates['is_within_n_business_days_ago'] == True]
+
+        
+        
         df_dates = df_dates.rename(columns={"implied_volatility_dt":"dt_key"
                                                   ,"implied_volatility":"dt"})
         
