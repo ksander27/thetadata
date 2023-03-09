@@ -3,7 +3,7 @@ import aiohttp
 from ..wrapper import NoDataForContract
 from ..option.option import Option
 from ..stock.stock import Stock
-from typing import List,Dict,Union,Any
+
 
 class AsyncFetcher():
     def __init__(self,BATCH_SIZE=128,TIMEOUT=5,MAX_RETRY=3,SLEEP=20):
@@ -110,9 +110,6 @@ class AsyncFetcher():
         -------
         asyncio.TimeoutError:
             If the maximum number of retries have been exceeded.
-
-
-
         """
         data = []
         i, attempt,last_success_batch_idx = self.MAX_RETRY, 0,0
