@@ -1,4 +1,4 @@
-from wrapper import Option
+from ..wrapper import Option
 from .downloader import AsyncDownloader
 from .transformer import ExpiryBatcher
 
