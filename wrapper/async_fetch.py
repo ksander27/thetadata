@@ -186,7 +186,7 @@ class AsyncDownloader(AsyncFetcher):
                 df_tmp[k] = v
         return df_tmp
     
-    def async_fetch_all_contracts(self):
+    def async_download_contracts(self):
         """ 
             External facing function.
             When given a list of dict following the convention {contract,method,params}
