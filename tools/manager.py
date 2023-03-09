@@ -4,12 +4,13 @@ from . import AsyncDownloader,ExpiryBatcher
 from ..wrapper import Option
 
 class AppManager():
-    def __init__(self,call_type,endpoint,endpoint_params,root,start_date=None,end_date=None):
+    def __init__(self,call_type,endpoint,endpoint_params,root,exp=None,start_date=None,end_date=None):
         self.call_type = call_type
         self.endpoint = endpoint
         self.endpoint_params = endpoint_params
         self.method = self.get_method()
         self.root = root
+        self.exp = exp
 
         self.start_date = start_date
         self.end_date = end_date
@@ -63,10 +64,9 @@ class AppManager():
 
 class ExpiryManager(AppManager):
     def __init__(self,strike_multiple=5,days_ago='70',freq_batch='D'
-                 ,exp=None,min_exp_date='2018-01-01',max_exp_date='2024-01-01',freq_exp='monthly'
+                 ,min_exp_date='2018-01-01',max_exp_date='2024-01-01',freq_exp='monthly'
                  ,BATCH_SIZE=128,TIMEOUT=60,MAX_RETRY=3,SLEEP=30,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        self.exp = exp
         self.strike_multiple = strike_multiple
         self.days_ago = days_ago
         self.freq_batch = freq_batch
