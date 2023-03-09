@@ -1,5 +1,5 @@
 from ..wrapper import Option
-from . import AppManager
+from . import ExpiryManager
 
 # ------------------------------ #
 
@@ -24,7 +24,7 @@ args_app_manager = {
 
 if __name__=='__main__':
     for root in roots:
-        mn = AppManager(**args_app_manager)
+        mn = ExpiryManager(**args_app_manager)
         _ = mn.isStorage()
         
         option = Option(root)      
