@@ -134,9 +134,11 @@ class Option(Option):
                 d3 = pd.date_range(min_exp_date, max_exp_date, freq="W-FRI")
                 exp_range = exp_range.union(d2)
                 exp_range = exp_range.union(d3)
+            elif freq_exp.lower() == 'all':
+                exp_range = pd.date_range(min_exp_date, max_exp_date, freq="B")
 
             else:
-                raise ValueError("freq_exp must be Monthly or Weekly")
+                raise ValueError("freq_exp must be Monthly or Weekly or all")
             
             if len(expirations)>0:
                 desired_expirations = [exp for exp in exp_range.strftime('%Y%m%d').to_list() if exp in expirations]
