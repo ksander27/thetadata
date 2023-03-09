@@ -132,20 +132,7 @@ class DownloadManager():
             print(f"[+] No implied volatility date for {self.root} - {self.exp}. Check with Thetadata")
         return self._dates
     
-    def _prepare_dates(self):
-        # Calculate the cut-off date n business days ago from the expiration date
-        self._dates["implied_volatility"] = self._dates["implied_volatility"].astype(str)
-        self._dates['exp_dt'] = pd.to_datetime(self._dates['exp'], format='%Y%m%d')
-        self._dates["implied_volatility_dt"] = pd.to_datetime(self._dates['implied_volatility'], format='%Y%m%d')
-        self._dates['cut_off'] = self._dates['exp_dt'] - pd.tseries.offsets.BDay(self.days_ago)
-        self._dates['is_within_n_business_days_ago'] = self._dates['implied_volatility_dt'] > self._dates['cut_off']
-        self._dates = self._dates[self._dates['is_within_n_business_days_ago'] == True]
 
-        self._dates = self._dates.rename(columns={"implied_volatility_dt":"key_dt"
-                                                  ,"implied_volatility":"dt"})
-        
-        print(f"[+] Filtered {self._dates.shape[0]} contracts with dates in {self.exp}")
-        return self._dates
 
 
     
@@ -154,9 +141,7 @@ class DownloadManager():
         df_dates = self._prepare_dates()
         bm = BatchManager(self.freq_batch)
         df_batch = bm.make_batches(df_dates)
-        # Adding main parameters
-        for k,v in self.endpoint_params.items():
-            df_batch[k] = v                                                     
+                                                  
         
         print(f"[+] Total dates/contracts batches {df_batch.shape[0]} for {self._get_method()} in {self.exp}")
         return df_batch
