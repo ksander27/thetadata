@@ -1,0 +1,5 @@
+FROM dataiku/dss:latest 
+
+EXPOSE 11200
+
+CMD ["/bin/bash"]

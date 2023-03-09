@@ -1,0 +1,9 @@
+FROM 17kb/thetadata:latest
+
+RUN pip install dash
+
+# Expose port
+EXPOSE 3000
+
+# End
+CMD ["/bin/bash"]
