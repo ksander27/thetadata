@@ -51,10 +51,6 @@ class ExpiryBatcher(BatchManager):
         df_dates["implied_volatility_dt"] = pd.to_datetime(df_dates['implied_volatility'], format='%Y%m%d')
         df_dates['cut_off'] = df_dates['exp_dt'] - pd.tseries.offsets.BDay(self.days_ago)
         df_dates['is_within_n_business_days_ago'] = df_dates['implied_volatility_dt'] > df_dates['cut_off']
-
-        print(df_dates.head())
-        df_dates.to_csv('./debug.csv',index=False)
-        
         df_dates = df_dates[df_dates['is_within_n_business_days_ago'] == True]
 
         
@@ -63,7 +59,11 @@ class ExpiryBatcher(BatchManager):
                                                   ,"implied_volatility":"dt"})
         
         print(f"[+] Filtered {df_dates.shape[0]} contracts with dates in {self.exp}")
-        return df_dates
+
+        if not df_dates.empty():
+            return df_dates
+        else:
+            raise ValueError("[+] Expiry Batcher - all dates are filtered.")
     
     
     def get_batches(self,df_dates):
