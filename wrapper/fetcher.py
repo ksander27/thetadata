@@ -11,7 +11,7 @@ class Timer():
 
     def time_elapsed(self):
         self._end_time = time.perf_counter()
-        self.elapsed = self._start_time - self._end_time
+        self.elapsed = self._end_time - self._start_time
         return self.elapsed
 
 
@@ -58,6 +58,7 @@ class AsyncFetcher():
         --------
         N/A
         """
+        self._task_id+=1
         time_task = Timer()
         r = await session.get(contract.url, params=contract.params, timeout=self.timeout)
         if r.status != 200:
@@ -119,7 +120,7 @@ class AsyncFetcher():
                 
                 task = asyncio.create_task(self._fetch_task(contract, session))
                 tasks.append(task)
-                self._task_id+=1
+                
             results = await asyncio.gather(*tasks)
 
         elapsed_batch = timer_batch.time_elapsed()
