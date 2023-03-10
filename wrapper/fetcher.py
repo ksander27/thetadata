@@ -79,7 +79,7 @@ class AsyncFetcher():
 
                     
                     elapsed_task = time_task.time_elapsed()
-                    print(f"[+]Id {task_id} - {contract.__str__()} - {contract.params}")
+                    print(f"[+]Id {task_id} - {elapsed_task:2f} - {contract.__str__()} - {contract.params}")
                     
                     return {"data": data, "url": contract.url, "params": contract.params
                             ,"task_id":task_id,"latency_task":elapsed_task
