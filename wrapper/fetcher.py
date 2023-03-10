@@ -74,7 +74,7 @@ class AsyncFetcher():
                     data = contract._parse_response()
 
                     elapsed_task = time_task.time_elapsed()
-                    print(f"[+]Id {self._get_task_id_str()} in {elapsed_task:2f} ms - {contract.__str__()} - {contract.params}")
+                    print(f"[+]Id {self._get_task_id_str()} - {contract.__str__()} - {contract.params}")
                     
                     return {"data": data, "url": contract.url, "params": contract.params
                             ,"task_id":self._get_task_id_str(),"latency_task":elapsed_task
