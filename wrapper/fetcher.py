@@ -49,7 +49,7 @@ class AsyncFetcher():
 
                 if contract._parse_header():
                     data = contract._parse_response()
-                    print(f"[+] Fetched data for contract - {contract.__str__()} - {contract.params}")
+                    print(f"[+] Fetched in {contract.latency} ms - {contract.__str__()} - {contract.params}")
                     return {"data": data, "url": contract.url, "params": contract.params}
 
             except NoDataForContract:

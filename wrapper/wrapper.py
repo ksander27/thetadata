@@ -23,6 +23,11 @@ class MyWrapper:
         self.request = None
         self.header = None
         self.response = None
+
+        self.req_id = None
+        self.latency = None
+        self.err_type = None
+        self.err_msg = None
         
         self.format = None
         self._async = _async
@@ -74,14 +79,16 @@ class MyWrapper:
             _ = self.request.json()
             self.header = _.get('header')
 
-        err_type = self.header.get('error_type')
-        err_msg = self.header.get('error_msg')
+        self.err_type = self.header.get('error_type')
+        self.err_msg = self.header.get('error_msg')
 
-        if err_type != "null":
-            if "Nonexistent root symbol or expiration" in err_msg:
-                raise RootOrExpirationError(f"[+] Error code - {err_type} : {err_msg}")
-            elif "No data for the specified timeframe & contract" in err_msg:
-                raise NoDataForContract(f"[+] Error code - {err_type} : {err_msg}")
+        self.req_id,self.latency_ms = self.header.get("id"),self.header.get("latency_ms")
+
+        if self.err_type != "null":
+            if "Nonexistent root symbol or expiration" in self.err_msg:
+                raise RootOrExpirationError(f"[+] Error code - {self.err_type} : {self.err_msg}")
+            elif "No data for the specified timeframe & contract" in self.err_msg:
+                raise NoDataForContract(f"[+] Error code - {self.err_type} : {self.err_msg}")
         return True
     
     def _parse_data(self):
@@ -89,9 +96,7 @@ class MyWrapper:
             data = [{self.req_type: element} for element in self.response]
         else:
             data = [{key: element[idx] for idx, key in enumerate(self.format)} for element in self.response]
-        
-        req_id,latency_ms = self.header.get("id"),self.header.get("latency_ms")
-        data = [dict(_dict, req_id=req_id, latency_ms=latency_ms) for _dict in data]
+        data = [dict(_dict, req_id=self.req_id, latency_ms=self.latency_ms) for _dict in data]
 
         return data
 
