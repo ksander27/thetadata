@@ -42,16 +42,16 @@ class AsyncDownloader(AsyncFetcher):
         return contracts
     
     def get_df_tmp(self,contract):
-        df_tmp = None 
-
-        url = contract.get("url")
         data = contract.get("data")
         params = contract.get("params")
-        if url and data:
-            df_tmp = pd.DataFrame(data)
-            df_tmp["url"] = url
-            for k,v in params.items():
-                df_tmp[k] = v
+
+        df_tmp = pd.DataFrame(data)
+        df_tmp["url"] = contract.get("url")
+        df_tmp["req_id"] = contract.get("req_id")
+        df_tmp["latency"] = contract.get("latency")
+        df_tmp["err_type"] = contract.get("err_type")
+        for k,v in params.items():
+            df_tmp[k] = v
         return df_tmp
     
     def async_download_contracts(self):
