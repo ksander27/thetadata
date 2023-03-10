@@ -93,12 +93,9 @@ class MyWrapper:
     
     def _parse_data(self):
         if self.format is None:
-            data = [{self.req_type: element} for element in self.response]
+            return [{self.req_type: element} for element in self.response]
         else:
-            data = [{key: element[idx] for idx, key in enumerate(self.format)} for element in self.response]
-        data = [dict(_dict, req_id=self.req_id, latency_ms=self.latency_ms) for _dict in data]
-
-        return data
+            return [{key: element[idx] for idx, key in enumerate(self.format)} for element in self.response]
 
     def _parse_response(self):
         """

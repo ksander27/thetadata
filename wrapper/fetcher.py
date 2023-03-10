@@ -50,11 +50,15 @@ class AsyncFetcher():
                 if contract._parse_header():
                     data = contract._parse_response()
                     print(f"[+] Fetched in {contract.latency} ms - {contract.__str__()} - {contract.params}")
-                    return {"data": data, "url": contract.url, "params": contract.params}
+                    return {"data": data, "url": contract.url, "params": contract.params
+                            , "req_id":contract.req_id, "latency_ms":contract.latency_ms
+                            ,"err_type":contract.err_type}
 
             except NoDataForContract:
                 print(f"[+] No data data for contract - {contract.__str__()} - {contract.params}")
-                return {"data": None, "url": None, "params": None}
+                return {"data": None, "url": None, "params": None
+                        , "req_id":contract.req_id, "latency_ms":contract.latency_ms
+                        ,"err_type":contract.err_type}
             
             except Exception as e:
                 print(f"Failed to fetch data {contract.err_msg} - {contract.__str__()} - {contract.params}")
