@@ -1,5 +1,6 @@
 import os
 import pandas as pd 
+import time
 from . import AsyncDownloader,ExpiryBatcher
 from ..wrapper import Option
 
@@ -81,6 +82,11 @@ class ExpiryManager(AppManager):
         self.TIMEOUT = TIMEOUT
         self.MAX_RETRY = MAX_RETRY
         self.SLEEP = SLEEP
+
+    def sleep(self):
+        print(f"[+] Manager going to sleep for {self.SLEEP}")
+        time.sleep(self.SLEEP)
+        return None
         
         
     def get_exp_data(self):
