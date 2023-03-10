@@ -79,7 +79,7 @@ class AsyncFetcher():
 
                     
                     elapsed_task = time_task.time_elapsed()
-                    print(f"[+]Id {task_id} - {elapsed_task:2f} - {contract.__str__()} - {contract.params}")
+                    print(f"[+]Id {task_id} - {elapsed_task:.2f} - {contract.__str__()} - {contract.params}")
                     
                     return {"data": data, "url": contract.url, "params": contract.params
                             ,"task_id":task_id,"latency_task":elapsed_task
@@ -130,7 +130,7 @@ class AsyncFetcher():
             results = await asyncio.gather(*tasks)
 
         elapsed_batch = timer_batch.time_elapsed()
-        print(f"[+] Batch id {self._batch_id} performed in {elapsed_batch:2f} seconds")
+        print(f"[+] Batch id {self._batch_id} performed in {elapsed_batch:.2f} seconds")
         return results
 
     async def fetch_all_contracts(self,contracts: List[Any]) -> List[Dict[str, Union[None, List[Any]]]]:
@@ -181,5 +181,5 @@ class AsyncFetcher():
         
 
         elapsed = timer.time_elapsed()
-        print(f"[+] Fetching performed in {elapsed:2f} seconds")
+        print(f"[+] Fetching performed in {elapsed:.2f} seconds")
         return data
