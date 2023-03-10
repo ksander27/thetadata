@@ -58,7 +58,7 @@ class AsyncFetcher():
         --------
         N/A
         """
-        self._task_id+=1
+        
         time_task = Timer()
         r = await session.get(contract.url, params=contract.params, timeout=self.timeout)
         if r.status != 200:
@@ -66,6 +66,7 @@ class AsyncFetcher():
         else:
             try:
                 _ = await r.json()
+                self._task_id+=1
                 contract.header = _.get("header")
                 contract.response = _.get("response")
 
@@ -124,7 +125,7 @@ class AsyncFetcher():
             results = await asyncio.gather(*tasks)
 
         elapsed_batch = timer_batch.time_elapsed()
-        print(f"[+] Batching performed in {elapsed_batch:2f} seconds")
+        print(f"[+] Batch id {self._batch_id} performed in {elapsed_batch:2f} seconds")
         return results
 
     async def fetch_all_contracts(self,contracts: List[Any]) -> List[Dict[str, Union[None, List[Any]]]]:
