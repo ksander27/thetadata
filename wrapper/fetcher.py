@@ -49,7 +49,7 @@ class AsyncFetcher():
 
                 if contract._parse_header():
                     data = contract._parse_response()
-                    print(f"[+] Fetched in {contract.latency_ms} ms - {contract.__str__()} - {contract.params}")
+                    print(f"[+] Req_id - {contract.req_id} in {contract.latency_ms} ms - {contract.__str__()} - {contract.params}")
                     return {"data": data, "url": contract.url, "params": contract.params
                             , "req_id":contract.req_id, "latency_ms":contract.latency_ms
                             ,"err_type":contract.err_type}
