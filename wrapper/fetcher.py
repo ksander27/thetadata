@@ -57,7 +57,7 @@ class AsyncFetcher():
                 return {"data": None, "url": None, "params": None}
             
             except Exception as e:
-                print(f"Failed to fetch data for contract - {contract.__str__()} - {contract.params}")
+                print(f"Failed to fetch data {contract.err_msg} - {contract.__str__()} - {contract.params}")
                 raise e
 
     async def _fetch_batch(self, batch: List[Any]) -> List[Dict[str, Union[Any, str]]]:
