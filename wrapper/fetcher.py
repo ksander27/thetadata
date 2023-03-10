@@ -61,23 +61,28 @@ class AsyncFetcher():
         
         time_task = Timer()
         r = await session.get(contract.url, params=contract.params, timeout=self.timeout)
+
+
         if r.status != 200:
             r.raise_for_status()
         else:
             try:
                 _ = await r.json()
-                self._task_id+=1
+                self._task_id+=1                        
+                task_id = self._get_task_id_str()
+
                 contract.header = _.get("header")
                 contract.response = _.get("response")
 
                 if contract._parse_header():
                     data = contract._parse_response()
 
+                    
                     elapsed_task = time_task.time_elapsed()
-                    print(f"[+]Id {self._get_task_id_str()} - {contract.__str__()} - {contract.params}")
+                    print(f"[+]Id {task_id} - {contract.__str__()} - {contract.params}")
                     
                     return {"data": data, "url": contract.url, "params": contract.params
-                            ,"task_id":self._get_task_id_str(),"latency_task":elapsed_task
+                            ,"task_id":task_id,"latency_task":elapsed_task
                             , "req_id":contract.req_id,"latency_ms":contract.latency_ms
                             ,"err_type":contract.err_type}
 
@@ -85,7 +90,7 @@ class AsyncFetcher():
                 elapsed_task = time_task.time_elapsed()
                 print(f"[+] No data data for contract - {contract.__str__()} - {contract.params}")
                 return {"data": None, "url": None, "params": None
-                        ,"task_id":self._get_task_id_str(),"latency_task":elapsed_task
+                        ,"task_id":task_id,"latency_task":elapsed_task
                         , "req_id":contract.req_id, "latency_ms":contract.latency_ms
                         ,"err_type":contract.err_type}
             
