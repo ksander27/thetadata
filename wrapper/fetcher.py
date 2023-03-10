@@ -1,7 +1,18 @@
 import asyncio 
 import aiohttp
+import time
 from .wrapper import NoDataForContract
 from typing import List,Dict,Union,Any
+
+class Timer():
+    def __init__(self):
+        self._start_time = time.perf_counter()
+        self._end_time = 0 
+
+    def time_elapsed(self):
+        self._end_time = time.perf_counter()
+        self.elapsed = self._start_time - self._end_time
+        return self.elapsed
 
 
 class AsyncFetcher():
@@ -12,6 +23,14 @@ class AsyncFetcher():
         self.sleep = sleep
 
         self._batch_id = 0
+        self._task_id = 0 
+
+        self._start_time = None
+        self._end_time = None
+
+
+    def _get_task_id_str(self):
+        return f"{self._batch_id}-{self._task_id}"
 
     # Last time it run fine - DO NOT TOUCH
     async def _fetch_task(self,contract, session):
@@ -39,7 +58,7 @@ class AsyncFetcher():
         --------
         N/A
         """
-
+        time_task = Timer()
         r = await session.get(contract.url, params=contract.params, timeout=self.timeout)
         if r.status != 200:
             r.raise_for_status()
@@ -51,15 +70,21 @@ class AsyncFetcher():
 
                 if contract._parse_header():
                     data = contract._parse_response()
-                    print(f"[+]Batch {self._batch_id} - Req - {contract.req_id} in {contract.latency_ms} ms - {contract.__str__()} - {contract.params}")
+
+                    elapsed_task = time_task.time_elapsed()
+                    print(f"[+]Id {self._get_task_id_str()} in {elapsed_task:2f} ms - {contract.__str__()} - {contract.params}")
+                    
                     return {"data": data, "url": contract.url, "params": contract.params
-                            ,"batch_id":self._batch_id, "req_id":contract.req_id, "latency_ms":contract.latency_ms
+                            ,"task_id":self._get_task_id_str(),"latency_task":elapsed_task
+                            , "req_id":contract.req_id,"latency_ms":contract.latency_ms
                             ,"err_type":contract.err_type}
 
             except NoDataForContract:
+                elapsed_task = time_task.time_elapsed()
                 print(f"[+] No data data for contract - {contract.__str__()} - {contract.params}")
                 return {"data": None, "url": None, "params": None
-                        ,"batch_id":self._batch_id, "req_id":contract.req_id, "latency_ms":contract.latency_ms
+                        ,"task_id":self._get_task_id_str(),"latency_task":elapsed_task
+                        , "req_id":contract.req_id, "latency_ms":contract.latency_ms
                         ,"err_type":contract.err_type}
             
             except Exception as e:
@@ -85,6 +110,8 @@ class AsyncFetcher():
         N/A
 
         """
+        timer_batch  = Timer()
+        self._task_id = 0
         tasks = []
         connector = aiohttp.TCPConnector(limit_per_host=self.batch_size)
         async with aiohttp.ClientSession(connector=connector) as session:
@@ -92,7 +119,11 @@ class AsyncFetcher():
                 
                 task = asyncio.create_task(self._fetch_task(contract, session))
                 tasks.append(task)
+                self._task_id+=1
             results = await asyncio.gather(*tasks)
+
+        elapsed_batch = timer_batch.time_elapsed()
+        print(f"[+] Batching performed in {elapsed_batch:2f} seconds")
         return results
 
     async def fetch_all_contracts(self,contracts: List[Any]) -> List[Dict[str, Union[None, List[Any]]]]:
@@ -115,6 +146,7 @@ class AsyncFetcher():
         asyncio.TimeoutError:
             If the maximum number of retries have been exceeded.
         """
+        timer = Timer()
         data = []
         timeout_incr,sleep_incr = self.timeout,self.sleep
         i, attempt,last_success_batch_idx = self.max_retry, 0,0
@@ -139,4 +171,8 @@ class AsyncFetcher():
         else:
             print(f"[+] Max retries reached. Giving up")
             raise asyncio.TimeoutError
+        
+
+        elapsed = timer.time_elapsed()
+        print(f"[+] Fetching performed in {elapsed:2f} seconds")
         return data
