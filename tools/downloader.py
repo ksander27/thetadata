@@ -48,7 +48,7 @@ class AsyncDownloader(AsyncFetcher):
         df_tmp = pd.DataFrame(data)
         df_tmp["url"] = contract.get("url")
         df_tmp["req_id"] = contract.get("req_id")
-        df_tmp["latency"] = contract.get("latency")
+        df_tmp["latency_ms"] = contract.get("latency_ms")
         df_tmp["err_type"] = contract.get("err_type")
         for k,v in params.items():
             df_tmp[k] = v

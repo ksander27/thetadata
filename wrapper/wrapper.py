@@ -25,7 +25,7 @@ class MyWrapper:
         self.response = None
 
         self.req_id = None
-        self.latency = None
+        self.latency_ms = None
         self.err_type = None
         self.err_msg = None
         
