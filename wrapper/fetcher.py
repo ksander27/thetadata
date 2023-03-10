@@ -11,6 +11,8 @@ class AsyncFetcher():
         self.max_retry = max_retry
         self.sleep = sleep
 
+        self._batch_id = 0
+
     # Last time it run fine - DO NOT TOUCH
     async def _fetch_task(self,contract, session):
         """
@@ -49,15 +51,15 @@ class AsyncFetcher():
 
                 if contract._parse_header():
                     data = contract._parse_response()
-                    print(f"[+] Req_id - {contract.req_id} in {contract.latency_ms} ms - {contract.__str__()} - {contract.params}")
+                    print(f"[+]Batch {self._batch_id} - Req - {contract.req_id} in {contract.latency_ms} ms - {contract.__str__()} - {contract.params}")
                     return {"data": data, "url": contract.url, "params": contract.params
-                            , "req_id":contract.req_id, "latency_ms":contract.latency_ms
+                            ,"batch_id":self._batch_id, "req_id":contract.req_id, "latency_ms":contract.latency_ms
                             ,"err_type":contract.err_type}
 
             except NoDataForContract:
                 print(f"[+] No data data for contract - {contract.__str__()} - {contract.params}")
                 return {"data": None, "url": None, "params": None
-                        , "req_id":contract.req_id, "latency_ms":contract.latency_ms
+                        ,"batch_id":self._batch_id, "req_id":contract.req_id, "latency_ms":contract.latency_ms
                         ,"err_type":contract.err_type}
             
             except Exception as e:
@@ -124,6 +126,7 @@ class AsyncFetcher():
                     results = await self._fetch_batch(batch)
                     data.extend(results)
                     last_success_batch_idx += self.batch_size
+                    self._batch_id +=1
                 break
             except asyncio.TimeoutError:
                 i -= 1
