@@ -16,7 +16,7 @@ class Timer():
 
 
 class AsyncFetcher():
-    def __init__(self,batch_size,timeout,max_retry,sleep):
+    def __init__(self,batch_size,timeout,max_retry,sleep,verbose=False):
         self.batch_size = batch_size
         self.timeout = timeout
         self.max_retry = max_retry
@@ -27,6 +27,7 @@ class AsyncFetcher():
 
         self._start_time = None
         self._end_time = None
+        self._verbose = verbose
 
 
     def _get_task_id_str(self):
@@ -79,7 +80,8 @@ class AsyncFetcher():
 
                     
                     elapsed_task = time_task.time_elapsed()
-                    print(f"[+]Id {task_id} - {elapsed_task:.2f} - {contract.__str__()} - {contract.params}")
+                    if self._verbose:
+                        print(f"[+]Id {task_id} - {elapsed_task:.2f} - {contract.__str__()} - {contract.params}")
                     
                     return {"data": data, "url": contract.url, "params": contract.params
                             ,"task_id":task_id,"latency_task":elapsed_task
