@@ -33,6 +33,18 @@ class Option(MyWrapper):
             return None
         
     # Helper
+
+    def _from_str(self,_str):
+        
+        try:
+            self.root,self.exp,self.right,self.exp = _str.split('_')
+            self._exp = _format_date(self.exp) if self.exp else None
+            self._right = self._format_right() if self.right else None
+            self._strike = self._format_strike() if self.strike else None
+        except Exception as e:
+            raise e("_str must be of format 'root_exp_right_exp' ")
+
+
     def _get_method(self,method,params=None):
         if not params:
             params = {}
