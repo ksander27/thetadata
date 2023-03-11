@@ -43,7 +43,6 @@ class AppManager():
             print(f"[+] {self.filename} already exists.")
             return True
         else:
-            print(f"\n[+] Building contracts for {self.exp}")
             return False
     
     def isStorage(self):
@@ -113,7 +112,7 @@ class ExpiryManager(AppManager):
                 df_dates = downloader.async_download_contracts()               
                 rows = df_dates.shape[0]
 
-                print(f"[+] Total {rows} contracts with dates in {self.exp} - Split in {int(rows/self.BATCH_SIZE)}")                    
+                print(f"[+] Total {rows} contracts with dates in {self.exp} - Split in {int(rows/self.BATCH_SIZE)} batches")                    
 
                 if df_dates is not None:
                     # Build list of args and params
