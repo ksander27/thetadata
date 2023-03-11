@@ -112,7 +112,7 @@ class ExpiryManager(AppManager):
                 df_dates = downloader.async_download_contracts()               
                 rows = df_dates.shape[0]
 
-                print(f"[+] Total {rows} contracts with dates in {self.exp} - Split in {int(rows/self.BATCH_SIZE)} batches")                    
+                print(f"[+] Total {rows} contracts with dates in {self.exp}.")                    
 
                 if df_dates is not None:
                     # Build list of args and params
