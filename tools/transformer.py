@@ -58,12 +58,12 @@ class ExpiryBatcher(BatchManager):
         df_dates = df_dates.rename(columns={"implied_volatility_dt":"dt_key"
                                                   ,"implied_volatility":"dt"})
         
-        print(f"[+] Filtered {df_dates.shape[0]} contracts with dates in {self.exp}")
+        print(f"[+] bt - Filtered {df_dates.shape[0]} contracts with dates in {self.exp}")
 
         if not df_dates.empty:
             return df_dates
         else:
-            raise ValueError("[+] Expiry Batcher - all dates are filtered.")
+            raise ValueError("[+] bt - Expiry Batcher - all dates are filtered.")
     
     
     def get_batches(self,df_dates):
