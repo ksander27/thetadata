@@ -121,7 +121,7 @@ class ExpiryManager(AppManager):
         return None
         
     def print(self):
-        print("""#-------------------------------------------#""")
+        print("""\n#-------------------------------------------#""")
         print(f"""# Download {self.root} - {self.exp} - {self.BATCH_SIZE} """)
         print("""#-------------------------------------------#\n""")
         return None
@@ -148,9 +148,9 @@ class ExpiryManager(AppManager):
                 downloader = AsyncDownloader(batches=df_batches,method=method,key_params=key_params
                                 ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT,max_retry=self.MAX_RETRY,sleep=self.SLEEP)    
                 df_dates = downloader.async_download_contracts()               
-                rows = df_dates.shape[0]
 
-                print(f"[+] Total {rows} contracts with dates in {self.exp}.")                    
+                rows = df_dates.shape[0]
+                print(f"[+] mn - Total {rows} contracts with dates in {self.exp}.")                    
 
                 if df_dates is not None:
                     # Build list of args and params
@@ -161,8 +161,11 @@ class ExpiryManager(AppManager):
                     method = self.get_method()
                     key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
 
+                    rows = df_batches.shape[0]
+                    print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")                    
+
                     # Fetching data for method
-                    print(f"[+] Fetching asynchronously data for {self.filename}")  
+                    print(f"[+] mn - Fetching asynchronously data for {self.filename}")  
                     downloader = AsyncDownloader(batches=df_batches,method=method,key_params=key_params
                                                 ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
                                                  ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
