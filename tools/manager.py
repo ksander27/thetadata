@@ -30,17 +30,14 @@ class AppManager():
 
 
     def get_PID_terminal(self):
-        for proc in psutil.process_iter(['name'], user='root'):
-            if proc.info.get('name') == 'java':
-                cmdline = proc.cmdline()
-                if len(cmdline) >=2 and 'thetadata' in cmdline[1]:
-                    self.PID_terminal = proc.pid
-                    print(f"[+] Terminal is running with PID - {self.PID_terminal}")
-                    break
+        for proc in psutil.process_iter(['name', 'cmdline']):
+            if proc.info.get('name') == 'java' and 'ThetaTerminal.jar' in proc.info['cmdline']:
+                self.PID_terminal = proc.pid
+                print(f"[+] Terminal is running with PID - {self.PID_terminal}")
+                break 
         else:
             self.PID_terminal = None
             print('[+] Terminal is not running')
-
         return self.PID_terminal
     
     def stop_terminal(self):
