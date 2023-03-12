@@ -79,7 +79,7 @@ class AsyncFetcher():
                     data = contract._parse_response()
 
                     if self._verbose:
-                        print(f"[+]Id {task_id} - {contract.latency_ms} - {contract.__str__()} - {contract.params}")
+                        print(f"[+] ft - Id {task_id} - {contract.latency_ms} - {contract.__str__()} - {contract.params}")
                     
                     return {"data": data, "url": contract.url, "params": contract.params
                             ,"task_id":task_id, "req_id":contract.req_id
@@ -87,14 +87,14 @@ class AsyncFetcher():
                             
 
             except NoDataForContract:
-                print(f"[+] No data data for contract - {contract.__str__()} - {contract.params}")
+                print(f"[+] ft - No data data for contract - {contract.__str__()} - {contract.params}")
                 return {"data": None, "url": None, "params": None
                         ,"task_id":task_id, "req_id":contract.req_id
                         , "latency_ms":contract.latency_ms,"err_type":contract.err_type}
                         
             
             except Exception as e:
-                print(f"Failed to fetch data {contract.err_msg} - {contract.__str__()} - {contract.params}")
+                print(f"[+] ft - Failed to fetch data {contract.err_msg} - {contract.__str__()} - {contract.params}")
                 raise e
 
     async def _fetch_batch(self, batch: List[Any]) -> List[Dict[str, Union[Any, str]]]:
@@ -129,7 +129,7 @@ class AsyncFetcher():
             results = await asyncio.gather(*tasks)
 
         elapsed_batch = timer_batch.time_elapsed()
-        print(f"[+] Batch id {self._batch_id} performed in {elapsed_batch:.2f} seconds")
+        print(f"[+] ft - Batch id {self._batch_id} performed in {elapsed_batch:.2f} seconds")
         return results
 
     async def fetch_all_contracts(self,contracts: List[Any]) -> List[Dict[str, Union[None, List[Any]]]]:
@@ -172,13 +172,13 @@ class AsyncFetcher():
                 self.sleep += sleep_incr
                 attempt += 1
                 if i>0:
-                    print(f"[+] Timed out {attempt}/{self.max_retry} .. going to sleep for {self.sleep}sec")
+                    print(f"[+] ft - Timed out {attempt}/{self.max_retry} .. going to sleep for {self.sleep}sec")
                     await asyncio.sleep(self.sleep)
         else:
-            print(f"[+] Max retries reached. Giving up")
+            print(f"[+] ft - Max retries reached. Giving up")
             raise asyncio.TimeoutError
         
 
         elapsed = timer.time_elapsed()
-        print(f"[+] Fetching performed in {elapsed:.2f} seconds")
+        print(f"[+] ft - Fetching performed in {elapsed:.2f} seconds")
         return data
