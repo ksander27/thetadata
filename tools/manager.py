@@ -30,7 +30,7 @@ class AppManager():
 
 
     def get_PID_terminal(self):
-        for proc in psutil.process_iter(['name']):
+        for proc in psutil.process_iter(['name'], user='root'):
             if proc.info.get('name') == 'java':
                 cmdline = proc.cmdline()
                 if len(cmdline) >=2 and 'thetadata' in cmdline[1]:
