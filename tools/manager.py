@@ -87,6 +87,11 @@ class ExpiryManager(AppManager):
         time.sleep(self.SLEEP)
         return None
         
+    def print(self):
+        print("""#-------------------------------------------#""")
+        print(f"""# Download {self.root} - {self.exp} - {self.BATCH_SIZE}# """)
+        print("""#-------------------------------------------#\n""")
+        return None
         
     def get_exp_data(self):
         df_data = None
