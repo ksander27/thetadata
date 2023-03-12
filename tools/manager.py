@@ -45,6 +45,7 @@ class AppManager():
     
     def stop_terminal(self):
         _ = self.get_PID_terminal()
+        print(f"[+] Stopping the terminal with PID - {self.PID_terminal}")
         subprocess.run(['kill','-15',str(self.PID_terminal)])
         _ = self.get_PID_terminal()
         return self.PID_terminal
