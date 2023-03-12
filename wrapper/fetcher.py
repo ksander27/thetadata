@@ -60,7 +60,7 @@ class AsyncFetcher():
         N/A
         """
         
-        time_task = Timer()
+
         r = await session.get(contract.url, params=contract.params, timeout=self.timeout)
 
 
@@ -78,23 +78,20 @@ class AsyncFetcher():
                 if contract._parse_header():
                     data = contract._parse_response()
 
-                    
-                    elapsed_task = time_task.time_elapsed()
                     if self._verbose:
-                        print(f"[+]Id {task_id} - {elapsed_task:.2f} - {contract.__str__()} - {contract.params}")
+                        print(f"[+]Id {task_id} - {contract.latency_ms} - {contract.__str__()} - {contract.params}")
                     
                     return {"data": data, "url": contract.url, "params": contract.params
-                            ,"task_id":task_id,"latency_task":elapsed_task
-                            , "req_id":contract.req_id,"latency_ms":contract.latency_ms
-                            ,"err_type":contract.err_type}
+                            ,"task_id":task_id, "req_id":contract.req_id
+                            ,"latency_ms":contract.latency_ms,"err_type":contract.err_type}
+                            
 
             except NoDataForContract:
-                elapsed_task = time_task.time_elapsed()
                 print(f"[+] No data data for contract - {contract.__str__()} - {contract.params}")
                 return {"data": None, "url": None, "params": None
-                        ,"task_id":task_id,"latency_task":elapsed_task
-                        , "req_id":contract.req_id, "latency_ms":contract.latency_ms
-                        ,"err_type":contract.err_type}
+                        ,"task_id":task_id, "req_id":contract.req_id
+                        , "latency_ms":contract.latency_ms,"err_type":contract.err_type}
+                        
             
             except Exception as e:
                 print(f"Failed to fetch data {contract.err_msg} - {contract.__str__()} - {contract.params}")
