@@ -122,7 +122,7 @@ class ExpiryManager(AppManager):
         
     def print(self):
         print("""\n#-------------------------------------------#""")
-        print(f"""# mn - Download {self.root} - {self.exp} - {self.BATCH_SIZE} """)
+        print(f"""# mn - Download {self.root} - {self.exp} - {self.BATCH_SIZE} {self.freq_batch} """)
         print("""#-------------------------------------------#\n""")
         return None
         
