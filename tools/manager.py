@@ -48,8 +48,8 @@ class AppManager():
         return self.PID_terminal
     
     def start_terminal(self):
-        command = ["java", "-jar", "/etc/thetadata/ThetaTerminal.jar", "$USERNAME", "$PASSWORD"]
-        subprocess.Popen(command)
+        command = "java -jar /etc/thetadata/ThetaTerminal.jar $USERNAME $PASSWORD &"
+        subprocess.Popen(command.split())
         _ = self.get_PID_terminal()
         return self.PID_terminal
     
