@@ -73,26 +73,26 @@ class AppManager():
     def isFile(self):
         _ = self.get_filename()
         if os.path.exists(self.filename):
-            print(f"[+] {self.filename} already exists.")
+            print(f"[+] mn - {self.filename} already exists.")
             return True
         else:
             return False
     
     def isStorage(self):
         if os.path.exists(self._DIR):
-            print(f"[+] {self._DIR} already exists.")
+            print(f"[+] mn - {self._DIR} already exists.")
         else:
             os.makedirs(self._DIR)
-            print(f"Created {self._DIR}")
+            print(f"[+] mn - Created {self._DIR}")
         return None
     
     def store_file(self,df_data):
         if df_data is not None:
-            print(f"[+] Fetched {df_data.shape[0]} contracts with dates in {self.exp}")
+            print(f"[+] mn - Fetched {df_data.shape[0]} contracts with dates in {self.exp}")
             df_data.to_csv(self.filename,index=False)
-            print(f"[+] Saved {self.filename}")
+            print(f"[+] mn - Saved {self.filename}")
         else:
-            print(f"[+] NO DATA - Nothing to save for {self.filename}") 
+            print(f"[+] mn - NO DATA - Nothing to save for {self.filename}") 
 
 
 
@@ -122,7 +122,7 @@ class ExpiryManager(AppManager):
         
     def print(self):
         print("""\n#-------------------------------------------#""")
-        print(f"""# Download {self.root} - {self.exp} - {self.BATCH_SIZE} """)
+        print(f"""# mn - Download {self.root} - {self.exp} - {self.BATCH_SIZE} """)
         print("""#-------------------------------------------#\n""")
         return None
         
