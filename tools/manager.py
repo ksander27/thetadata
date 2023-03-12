@@ -1,8 +1,13 @@
 import os
 import pandas as pd 
 import time
+import subprocess
+import psutil
+
 from . import AsyncDownloader,ExpiryBatcher
 from ..wrapper import Option
+
+
 
 class AppManager():
     def __init__(self,call_type,endpoint,endpoint_params,root,exp=None,start_date=None,end_date=None):
@@ -19,6 +24,35 @@ class AppManager():
         self._DIR = self._get_DIR()
         self._file = self._get_file()
         self.filename = self.get_filename()
+
+
+        self.PID_terminal = None
+
+
+    def get_PID_terminal(self):
+        for proc in psutil.process_iter(['name']):
+            if proc.info.get('name') == 'java':
+                cmdline = proc.cmdline()
+                if len(cmdline) >=2 and 'thetadata' in cmdline[1]:
+                    self.PID_terminal = proc.pid
+                    print(f"[+] Terminal is running with PID - {self.PID_terminal}")
+                    break
+        else:
+            self.PID_terminal = None
+            print('[+] Terminal is not running')
+
+        return self.PID_terminal
+    
+    def stop_terminal(self):
+        subprocess.run(['kill','-15',str(self.PID_terminal)])
+        _ = self.get_PID_terminal()
+        return self.PID_terminal
+    
+    def start_terminal(self):
+        command = "java -jar /etc/thetadata/ThetaTerminal.jar $USERNAME $PASSWORD &"
+        subprocess.Popen(command.split())
+        _ = self.get_PID_terminal()
+        return self.PID_terminal
     
     def get_method(self):
         self.method = f"get_{self.call_type}_{self.endpoint}"
