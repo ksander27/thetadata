@@ -44,13 +44,14 @@ class AppManager():
         return self.PID_terminal
     
     def stop_terminal(self):
+        _ = self.get_PID_terminal()
         subprocess.run(['kill','-15',str(self.PID_terminal)])
         _ = self.get_PID_terminal()
         return self.PID_terminal
     
     def start_terminal(self):
-        command = "java -jar /etc/thetadata/ThetaTerminal.jar $USERNAME $PASSWORD &"
-        subprocess.Popen(command.split())
+        command = ["java", "-jar", "/etc/thetadata/ThetaTerminal.jar", "$USERNAME", "$PASSWORD"]
+        subprocess.Popen(command, start_new_session=True)
         _ = self.get_PID_terminal()
         return self.PID_terminal
     
