@@ -1,5 +1,8 @@
 from typing import Dict,Any,Union,List
 import requests as rq
+import subprocess
+import psutil
+
 from .utils import ResponseFormatError
 
 class RootOrExpirationError(Exception):
@@ -31,6 +34,34 @@ class MyWrapper:
         
         self.format = None
         self._async = _async
+
+        self.PID_terminal = None
+
+
+    def get_PID_terminal(self):
+        for proc in psutil.process_iter(['name']):
+            if proc.info.get('name') == 'java':
+                cmdline = proc.cmdline()
+                if len(cmdline) >=2 and 'thetadata' in cmdline[1]:
+                    self.PID_terminal = proc.pid
+                    print(f"[+] Terminal is running with PID - {self.PID_terminal}")
+                    break
+        else:
+            self.PID_terminal = None
+            print('[+] Terminal is not running')
+
+        return self.PID_terminal
+    
+    def stop_terminal(self):
+        subprocess.run(['kill','-15',str(self.PID_terminal)])
+        _ = self.get_PID_terminal()
+        return self.PID_terminal
+    
+    def start_terminal(self):
+        command = "java -jar /etc/thetadata/ThetaTerminal.jar $USERNAME $PASSWORD &"
+        subprocess.Popen(command.split())
+        _ = self.get_PID_terminal()
+        return self.PID_terminal
 
     def _isRequestOkay(self):
         if not self._async:
