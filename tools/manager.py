@@ -165,7 +165,6 @@ class ExpiryManager(AppManager):
                     print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")                    
 
                     # Fetching data for method
-                    print(f"[+] mn - Fetching asynchronously data for {self.filename}")  
                     downloader = AsyncDownloader(batches=df_batches,method=method,key_params=key_params
                                                 ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
                                                  ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
