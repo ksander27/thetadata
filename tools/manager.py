@@ -187,7 +187,7 @@ class ExpiryManager(AppManager):
                                                                     for strike in desired_strikes
                                                                     for right in ["call","put"]])
                 
-                method, key_params = "get_list_dates_trade",[]
+                method, key_params = "get_list_dates_open_interest",[]
                 downloader = AsyncDownloader(batches=df_batches,method=method,key_params=key_params
                                 ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
                 df_dates = downloader.async_download_contracts()
