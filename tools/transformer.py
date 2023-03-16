@@ -41,7 +41,7 @@ class ExpiryBatcher(BatchManager):
         self.exp = exp
         self.days_ago = days_ago
 
-    def prepare_dates(self, df_dates: pd.DataFrame) -> pd.DataFrame:
+    def prepare_dates(self, date_key:str ,df_dates: pd.DataFrame) -> pd.DataFrame:
         """
         Filters and prepares the input DataFrame containing date and implied volatility information based on the number of business days ago.
 
@@ -83,17 +83,17 @@ class ExpiryBatcher(BatchManager):
         df_dates["strike"] /= 1000
 
         # Calculate the cut-off date n business days ago from the expiration date
-        df_dates["implied_volatility"] = df_dates["implied_volatility"].astype(str)
+        df_dates[date_key] = df_dates[date_key].astype(str)
         df_dates['exp_dt'] = pd.to_datetime(df_dates['exp'], format='%Y%m%d')
-        df_dates["implied_volatility_dt"] = pd.to_datetime(df_dates['implied_volatility'], format='%Y%m%d')
+        df_dates[f"{date_key}_dt"] = pd.to_datetime(df_dates[date_key], format='%Y%m%d')
 
         if self.days_ago is not None:
             df_dates['cut_off'] = df_dates['exp_dt'] - pd.tseries.offsets.BDay(self.days_ago)
-            df_dates['is_within_n_business_days_ago'] = df_dates['implied_volatility_dt'] > df_dates['cut_off']
+            df_dates['is_within_n_business_days_ago'] = df_dates[f"{date_key}_dt"] > df_dates['cut_off']
             df_dates = df_dates[df_dates['is_within_n_business_days_ago'] == True]
 
-        df_dates = df_dates.rename(columns={"implied_volatility_dt": "dt_key",
-                                            "implied_volatility": "dt"})
+        df_dates = df_dates.rename(columns={f"{date_key}_dt": "dt_key",
+                                            date_key: "dt"})
 
         print(f"[+] bt - Filtered {df_dates.shape[0]} contracts with dates in {self.exp}")
 
