@@ -239,6 +239,10 @@ class Option(MyWrapper):
     def get_list_dates_implied_volatility(self) -> List[str]:
         self.req_type = "implied_volatility"
         return self._get_list_dates()
+    
+    def get_list_dates_open_interest(self) -> List[str]:
+        self.req_type = "open_interest"
+        return self._get_list_dates()
 
      
     # Hist endpoints
