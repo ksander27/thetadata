@@ -176,7 +176,7 @@ class ExpiryManager(AppManager):
     def get_open_interest_data(self):
         df_data = None 
         option = Option(self.root,self.exp)
-        date_range = option.get_list_dates_trade()
+        date_range = option.get_list_dates_open_interest()
         if date_range:
             self.start_date,self.end_date = date_range[0],date_range[-1]
             if not self.isFile():
