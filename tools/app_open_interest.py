@@ -36,6 +36,6 @@ if __name__=='__main__':
             mn.print()
             mn.exp = exp
 
-            df_data = mn.get_open_interest_data()
+            df_data = mn.get_hist_open_interest_data()
             if df_data is not None:
                 _ = mn.store_file(df_data)

@@ -36,6 +36,6 @@ if __name__=='__main__':
             mn.exp = exp
             mn.print()
             
-            df_data = mn.get_exp_data()
+            df_data = mn.get_hist_exp_data()
             if df_data is not None:
                 _ = mn.store_file(df_data)

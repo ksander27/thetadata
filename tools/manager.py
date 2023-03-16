@@ -126,7 +126,7 @@ class ExpiryManager(AppManager):
         print("""#-------------------------------------------#\n""")
         return None
         
-    def get_exp_data(self):
+    def get_hist_exp_data(self):
         df_data = None
         # Create a date range of n days starting from the input exp - check with TD if there are data basically.
         option = Option(self.root,self.exp)
@@ -173,7 +173,7 @@ class ExpiryManager(AppManager):
         return df_data
     
 
-    def get_open_interest_data(self):
+    def get_hist_open_interest_data(self):
         df_data = None 
         option = Option(self.root,self.exp)
         date_range = [str(open_interest.get("open_interest")) for open_interest in option.get_list_dates_open_interest()]
@@ -212,4 +212,20 @@ class ExpiryManager(AppManager):
                     
                     df_data = downloader.async_download_contracts()
 
+        return df_data
+    
+    def get_yesterday_data(self):
+        df_data = None
+
+        # Get yesterday 
+
+        # Check that yesterday is in iv dates 
+
+        # If not file 
+
+        # Option get_strikes
+        # Build contract batch 
+        # If batch - get method and dl
+
+        # At the manager level - once all the tickers for the day are done, take all the files and create one big partition
         return df_data
