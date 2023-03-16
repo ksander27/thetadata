@@ -154,7 +154,7 @@ class ExpiryManager(AppManager):
 
                 if df_dates is not None:
                     # Build list of args and params
-                    batcher = ExpiryBatcher(exp=self.exp,days_ago=self.days_ago
+                    batcher = ExpiryBatcher(exp=self.exp,days_ago=self.days_ago,date_key="implied_volatility"
                                             ,freq_batch=self.freq_batch,endpoint_params=self.endpoint_params)
 
                     df_batches = batcher.get_batches(date_key="implied_volatility",df_dates=df_dates)
@@ -196,9 +196,10 @@ class ExpiryManager(AppManager):
                 print(f"[+] mn - Total {rows} contracts with dates in {self.exp}.")
 
                 if df_dates is not None:
-                    batcher = ExpiryBatcher(exp=self.exp,days_ago=self.days_ago,freq_batch=self.freq_batch
-                                            ,endpoint_params=self.endpoint_params)
-                    df_batches = batcher.get_batches(date_key="implied_volatility",df_dates=df_dates)
+                    batcher = ExpiryBatcher(exp=self.exp,days_ago=self.days_ago,date_key="open_interest"
+                                            ,freq_batch=self.freq_batch,endpoint_params=self.endpoint_params)
+                                            
+                    df_batches = batcher.get_batches(df_dates=df_dates)
                     method = self.get_method()
                     key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
 
