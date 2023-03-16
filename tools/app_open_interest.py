@@ -37,7 +37,7 @@ if __name__=='__main__':
             print(f"""#- Download {root} - {exp} -# """)
             print("""#-------------------------#\n""")
             mn.exp = exp
-            df_data = mn.get_exp_data()
+            df_data = mn.get_open_interest_data()
             if df_data is not None:
                 _ = mn.store_file(df_data)
                 _ = mn.sleep()
