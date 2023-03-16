@@ -149,14 +149,87 @@ class Option(Option):
             raise NoDataForContract
         
 
-    def get_desired_strikes(self, strike_multiple: int) -> Optional[List[float]]:
+    def get_open_expirations(self, max_exp_date: Optional[str] = None, freq_exp: str = 'monthly') -> List[str]:
+        """
+        Returns a list of open expiration dates given an optional maximum expiration date and
+        frequency of expiration dates.
+
+        Parameters:
+        -----------
+        max_exp_date : str, optional
+            The maximum expiration date in '%Y%m%d' format. If not provided, all open expirations will be returned.
+        freq_exp : str, default 'monthly'
+            The frequency of desired expiration dates. Valid options are 'monthly' or 'weekly'.
+
+        Raises:
+        -------
+        TypeError:
+            If max_exp_date is not a string or if freq_exp is not a string.
+        ValueError:
+            If freq_exp is not 'monthly' or 'weekly'.
+
+        Returns:
+        --------
+        List[str]
+            A list of open expiration dates in '%Y%m%d' format that fall within the specified date range and frequency.
+
+        Example :
+        ---------
+
+
+        """
+
+        desired_open_expirations = None
+        if not isinstance(freq_exp, str):
+            raise TypeError("freq_exp must be a str")
+
+        today = datetime.today().date()
+        min_exp_date = today
+
+        if max_exp_date:
+            max_exp_date = _format_date(max_exp_date)
+        else:
+            max_exp_date = '2099-12-31'  # Arbitrary far-off future date
+
+        try:
+            expirations = [str(expiration.get("expirations")) for expiration in self.get_list_expirations()]
+
+            if 'mon' in freq_exp.lower():
+                exp_range = pd.date_range(min_exp_date, max_exp_date, freq='WOM-3FRI')
+
+            elif 'wee' in freq_exp.lower():
+                exp_range = pd.date_range(min_exp_date, max_exp_date, freq="W-MON")
+                d2 = pd.date_range(min_exp_date, max_exp_date, freq="W-WED")
+                d3 = pd.date_range(min_exp_date, max_exp_date, freq="W-FRI")
+                exp_range = exp_range.union(d2)
+                exp_range = exp_range.union(d3)
+            elif freq_exp.lower() == 'all':
+                exp_range = pd.date_range(min_exp_date, max_exp_date, freq="B")
+
+            else:
+                raise ValueError("freq_exp must be Monthly or Weekly or all")
+
+            if len(expirations) > 0:
+                desired_open_expirations = [exp for exp in exp_range.strftime('%Y%m%d').to_list() if exp in expirations]
+            return desired_open_expirations
+
+        except NoDataForContract:
+            print(f"[+] NO EXPIRATIONS FOR {self.__str__()} - check with thetadata")
+            raise NoDataForContract
+
+
+    def get_desired_strikes(self, strike_multiple: int = 5, min_strike: Optional[float] = None, max_strike: Optional[float] = None) -> Optional[List[float]]:
         """
         Returns a list of strikes for the contract {root, exp} respecting the modulo `strike_multiple`.
 
         Parameters:
         -----------
-        strike_multiple : int
+        strike_multiple : int, default 5
             The desired multiple to use for selecting strikes.
+        min_strike : float, optional
+            The minimum strike to include in the results.
+        max_strike : float, optional
+            The maximum strike to include in the results.
 
         Raises:
         -------
@@ -181,25 +254,31 @@ class Option(Option):
 
         """
 
-        
         desired_strikes = None
-        if not isinstance(strike_multiple,int):
+        if not isinstance(strike_multiple, int):
             raise TypeError("[+] strike_multiple must be a positive integer")
         if strike_multiple < 0:
             raise ValueError("[+] strike_multiple must be a positive integer")
         if self.exp is None:
             raise OptionError("[+] An expiration is required to get the desired strikes")
-        
+
         try:
-            strike_multiple *=1000
+            strike_multiple *= 1000
             strikes = self.get_list_strikes()
-            
-            if len(strikes)>0:
+
+            if len(strikes) > 0:
                 df = pd.DataFrame(strikes)
                 df = df[df["strikes"] % strike_multiple == 0]
-                desired_strikes = df.strikes.values/1000
+
+                if min_strike is not None:
+                    df = df[df["strikes"] >= min_strike * 1000]
+
+                if max_strike is not None:
+                    df = df[df["strikes"] <= max_strike * 1000]
+
+                desired_strikes = df.strikes.values / 1000
             return desired_strikes
-        
+
         except NoDataForContract:
             print(f"[+] NO STRIKES FOR {self.__str__()} - check with thetadata")
             raise NoDataForContract

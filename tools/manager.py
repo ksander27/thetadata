@@ -171,3 +171,44 @@ class ExpiryManager(AppManager):
 
                     df_data = downloader.async_download_contracts()
         return df_data
+    
+
+    def get_open_interest_data(self):
+        df_data = None 
+        option = Option(self.root,self.exp)
+        date_range = option.get_list_dates_trade()
+        if date_range:
+            self.start_date,self.end_date = date_range[0],date_range[-1]
+            if not self.isFile():
+                option = Option(self.root,self.exp)
+                desired_strikes = option.get_desired_strikes(self.strike_multiple)
+
+                df_batches = pd.DataFrame([{"root":self.root, "exp":self.exp,"right":right,"strike":strike}
+                                                                    for strike in desired_strikes
+                                                                    for right in ["call","put"]])
+                
+                method, key_params = "get_list_dates_trade",[]
+                downloader = AsyncDownloader(batches=df_batches,method=method,key_params=key_params
+                                ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
+                df_dates = downloader.async_download_contracts()
+
+                rows =df_dates.shape[0]
+                print(f"[+] mn - Total {rows} contracts with dates in {self.exp}.")
+
+                if df_dates is not None:
+                    batcher = ExpiryBatcher(exp=self.exp,days_ago=self.days_ago,freq_batch=self.freq_batch
+                                            ,endpoint_params=self.endpoint_params)
+                    df_batches = batcher.get_batches(df_dates)
+                    method = self.get_method()
+                    key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
+
+                    rows = df_batches.shape[0]
+                    print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")
+
+                    downloader = AsyncDownloader(batches=df_batches,method=method,key_params=key_params
+                                                 ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
+                                                 ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
+                    
+                    df_data = downloader.async_download_contracts()
+
+        return df_data

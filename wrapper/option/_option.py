@@ -350,18 +350,18 @@ class Option(MyWrapper):
         self.req_type = "trade_quote"
         return self._get_at_time(start_date,end_date,s_of_day)
     
-    def get_at_time_ohlc(self,start_date,end_date,s_of_day):
-        self.req_type = "ohlc"
-        return self._get_at_time(start_date,end_date,s_of_day)
+    #def get_at_time_ohlc(self,start_date,end_date,s_of_day):
+    #    self.req_type = "ohlc"
+    #    return self._get_at_time(start_date,end_date,s_of_day)
        
     #def get_at_time_eod_quote_greeks(self,start_date,end_date,s_of_day):
     #    self.req_type = "eod_quote_greeks"
     #    return self._get_at_time(start_date,end_date,s_of_day)
     
-    def get_at_time_open_interest(self,start_date,end_date,s_of_day):
-        #ivl = 3600 # unnecessary params - a bit hacky but it's to avoid a fail on _get_hist if ivl=None
-        self.req_type = "open_interest"
-        return self._get_at_time(start_date,end_date,s_of_day)
+    #def get_at_time_open_interest(self,start_date,end_date,s_of_day):
+    #    #ivl = 3600 # unnecessary params - a bit hacky but it's to avoid a fail on _get_hist if ivl=None
+    #    self.req_type = "open_interest"
+    #    return self._get_at_time(start_date,end_date,s_of_day)
     
 
 
