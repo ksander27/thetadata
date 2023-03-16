@@ -12,11 +12,11 @@ args_app_manager = {
     ,"days_ago": None
     ,"strike_multiple":1
     ,"freq_exp":"all"
-    ,"freq_batch": 'MS'
+    ,"freq_batch": 'W-MON'
     #,"min_exp_date": "2020-01-01"
     #,"max_exp_date": "2023-06-01"
-    ,"BATCH_SIZE":700
-    ,"TIMEOUT":120
+    ,"BATCH_SIZE":100
+    ,"TIMEOUT":60
     ,"MAX_RETRY":5
     ,"SLEEP":30
 }
