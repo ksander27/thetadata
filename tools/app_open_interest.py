@@ -33,11 +33,9 @@ if __name__=='__main__':
         desired_expirations = option.get_open_expirations(freq_exp=mn.freq_exp)
         
         for exp in desired_expirations:
-            print("""#-------------------------#""")
-            print(f"""#- Download {root} - {exp} -# """)
-            print("""#-------------------------#\n""")
+            mn.print()
             mn.exp = exp
+
             df_data = mn.get_open_interest_data()
             if df_data is not None:
                 _ = mn.store_file(df_data)
-                _ = mn.sleep()
