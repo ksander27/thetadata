@@ -133,7 +133,8 @@ class ExpiryManager(AppManager):
         date_range = option.get_iv_dates_from_days_ago(self.days_ago)
         if date_range:
             # Check if file already exists
-            self.start_date,self.end_date = date_range[0],date_range[-1]
+            self.start_date = str(date_range[0].get("open_interest"))
+            self.end_date = str(date_range[-1].get("open_interest")) 
             if not self.isFile():
                 # Getting all dates with implied volatility for each contract in exp
                 option = Option(self.root,self.exp)
