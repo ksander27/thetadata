@@ -43,18 +43,6 @@ class _Option(MyWrapper):
             self._strike = self._format_strike() if self.strike else None
         except Exception as e:
             raise e("_str must be of format 'root_exp_right_exp' ")
-
-
-    def _get_method(self,method,params=None):
-        if not params:
-            params = {}
-
-        func = getattr(self, method)
-        data = func(**params)
-        if self._async:
-            return self
-        else:
-            return data
     
     def _format_right(self):
         if self.right is None:

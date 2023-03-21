@@ -34,6 +34,16 @@ class MyWrapper:
         self.format = None
         self._async = _async
 
+    def _get_method(self,method,params=None):
+        if not params:
+            params = {}
+
+        func = getattr(self, method)
+        data = func(**params)
+        if self._async:
+            return self
+        else:
+            return data
 
     def _isRequestOkay(self):
         if not self._async:
