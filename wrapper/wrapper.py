@@ -44,7 +44,7 @@ class MyWrapper:
             return self
         else:
             return data
-
+        
     def _isRequestOkay(self):
         if not self._async:
             if self.request.ok:
