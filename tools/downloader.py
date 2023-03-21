@@ -75,7 +75,6 @@ class AsyncDownloaderOption(AsyncFetcher):
         return df
     
 
-
 class AsyncDownloaderStock(AsyncFetcher):
     def __init__(self,batches,method,key_params=[],*args,**kwargs):
         super().__init__(*args,**kwargs)
