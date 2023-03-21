@@ -5,7 +5,7 @@ import subprocess
 import psutil
 
 from . import AsyncDownloaderOption,ExpiryBatcher
-from ..wrapper import Option
+from ..wrapper import Option,NoDataForContract
 
 
 
@@ -130,8 +130,14 @@ class ExpiryManager(AppManager):
         df_data = None
         # Create a date range of n days starting from the input exp - check with TD if there are data basically.
         option = Option(self.root,self.exp)
-        date_range = option.get_iv_dates_from_days_ago(self.days_ago)
-        if date_range:
+        try:
+            date_range = option.get_iv_dates_from_days_ago(self.days_ago)
+        except NoDataForContract:
+            date_range = None
+
+        if date_range is None :
+            print(f"[+] mn - No IV data for {self.exp}")
+        else:
             # Check if file already exists
             self.start_date,self.end_date = date_range[0],date_range[-1]
             if not self.isFile():
@@ -170,14 +176,22 @@ class ExpiryManager(AppManager):
                                                  ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
 
                     df_data = downloader.async_download_contracts()
+
         return df_data
     
 
     def get_hist_open_interest_data(self):
         df_data = None 
         option = Option(self.root,self.exp)
-        date_range = [str(open_interest.get("open_interest")) for open_interest in option.get_list_dates_open_interest()]
-        if date_range:
+        try:
+            date_open_interest = option.get_list_dates_open_interest()
+            date_range = [str(open_interest.get("open_interest")) for open_interest in date_open_interest]
+        except NoDataForContract:
+            date_range = None
+
+        if date_range is None :
+            print(f"[+] mn - No Open Interest data for {self.exp}")
+        else:
             self.start_date,self.end_date = date_range[0],date_range[-1]
             if not self.isFile():
                 option = Option(self.root,self.exp)
@@ -207,10 +221,11 @@ class ExpiryManager(AppManager):
                     print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")
 
                     downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
-                                                 ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
-                                                 ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
+                                                ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
+                                                ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
                     
                     df_data = downloader.async_download_contracts()
+            
 
         return df_data
     
