@@ -7,7 +7,7 @@ from typing import Optional,List
 
 YESTERDAY = datetime.now() - timedelta(days=1)
 
-class Option(Option):
+class Option(_Option):
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
         
