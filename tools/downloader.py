@@ -76,15 +76,15 @@ class AsyncDownloaderOption(AsyncFetcher):
     
 
 
-# class AsyncDownloaderStock(AsyncFetcher):
-#     def __init__(self,batches,method,key_params=[],*args,**kwargs):
-#         super().__init__(*args,**kwargs)
+class AsyncDownloaderStock(AsyncFetcher):
+    def __init__(self,batches,method,key_params=[],*args,**kwargs):
+        super().__init__(*args,**kwargs)
                     
-#         self.batches = batches # must be df with root,exp,strike,right
-#         self.method = method
-#         self.key_params = key_params # List of parameters alongside a method
+        self.batches = batches # must be df with root,exp,strike,right
+        self.method = method
+        self.key_params = key_params # List of parameters alongside a method
 
-#         self.list_async_params = None
+        self.list_async_params = None
 
 #     def get_list_async_params_from_batches(self):
 #         """ 
