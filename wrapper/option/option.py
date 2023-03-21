@@ -1,4 +1,4 @@
-from ._option import Option,OptionError
+from ._option import _Option,OptionError
 from ..wrapper import NoDataForContract
 from ..utils import _format_date
 from datetime import datetime, timedelta
