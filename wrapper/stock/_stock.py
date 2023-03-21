@@ -9,6 +9,9 @@ class _Stock(MyWrapper):
         self.sec_type = "stock"
         self.root = root
     
+    def __str__(self):
+        return f"STK_{self.root}"
+        
     # Call endpoint helpers
     def _get_list_dates(self):
         self.call_type = "list"
