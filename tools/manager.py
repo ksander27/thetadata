@@ -4,7 +4,7 @@ import time
 import subprocess
 import psutil
 
-from . import AsyncDownloader,ExpiryBatcher
+from . import AsyncDownloaderOption,ExpiryBatcher
 from ..wrapper import Option
 
 
@@ -145,7 +145,7 @@ class ExpiryManager(AppManager):
 
                 # Fetching response to get all the dates per contract      
                 method,key_params = "get_list_dates_implied_volatility",[]
-                downloader = AsyncDownloader(batches=df_batches,method=method,key_params=key_params
+                downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
                                 ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT,max_retry=self.MAX_RETRY,sleep=self.SLEEP)    
                 df_dates = downloader.async_download_contracts()               
 
@@ -165,7 +165,7 @@ class ExpiryManager(AppManager):
                     print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")                    
 
                     # Fetching data for method
-                    downloader = AsyncDownloader(batches=df_batches,method=method,key_params=key_params
+                    downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
                                                 ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
                                                  ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
 
@@ -188,7 +188,7 @@ class ExpiryManager(AppManager):
                                                                     for right in ["call","put"]])
                 
                 method, key_params = "get_list_dates_open_interest",[]
-                downloader = AsyncDownloader(batches=df_batches,method=method,key_params=key_params
+                downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
                                 ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
                 df_dates = downloader.async_download_contracts()
 
@@ -206,7 +206,7 @@ class ExpiryManager(AppManager):
                     rows = df_batches.shape[0]
                     print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")
 
-                    downloader = AsyncDownloader(batches=df_batches,method=method,key_params=key_params
+                    downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
                                                  ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
                                                  ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
                     
