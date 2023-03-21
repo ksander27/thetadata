@@ -71,8 +71,6 @@ class MyWrapper:
             raise ResponseFormatError(f"Response is [] - check query")
         return True
 
-
-        
     def _parse_header(self) -> Union[List, int]:
         """
         This function checks the header of the response to see if there is an error.
