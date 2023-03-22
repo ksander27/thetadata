@@ -132,9 +132,9 @@ class ExpiryManager(AppManager):
         try:
             date_range = option.get_iv_dates_from_days_ago(self.days_ago)
         except NoDataForContract:
-            date_range = None
+            date_range = []
 
-        if date_range is None :
+        if len(date_range)==0 :
             print(f"[+] mn - No IV data for {self.exp}")
         else:
             # Check if file already exists
@@ -186,9 +186,9 @@ class ExpiryManager(AppManager):
             date_open_interest = option.get_list_dates_open_interest()
             date_range = [str(open_interest.get("open_interest")) for open_interest in date_open_interest]
         except NoDataForContract:
-            date_range = None
+            date_range = []
 
-        if date_range is None :
+        if len(date_range)==0 :
             print(f"[+] mn - No Open Interest data for {self.exp}")
         else:
             self.start_date,self.end_date = date_range[0],date_range[-1]
