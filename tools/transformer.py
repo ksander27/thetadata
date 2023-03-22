@@ -82,7 +82,9 @@ class ExpiryBatcher(BatchManager):
 
         if self.days_ago is not None:
             df_dates['cut_off'] = df_dates['exp_dt'] - pd.tseries.offsets.BDay(self.days_ago)
+            print(f"Cut-off dates: {df_dates['cut_off']}") 
             df_dates['is_within_n_business_days_ago'] = df_dates[f"{self.date_key}_dt"] > df_dates['cut_off']
+            print(f"Filtering condition: {df_dates['is_within_n_business_days_ago']}")
             df_dates = df_dates[df_dates['is_within_n_business_days_ago'] == True]
 
         df_dates = df_dates.rename(columns={f"{self.date_key}_dt": "dt_key",
