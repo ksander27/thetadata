@@ -96,9 +96,6 @@ class ExpiryBatcher(BatchManager):
             df_tmp.to_csv("/home/jupyter/data/pre_filter.csv",index=False)
             raise ValueError("[+] bt - Expiry Batcher - all dates are filtered.")
 
-
-    
-    
     def get_batches(self,df_dates):
         df_prep = self.prepare_dates(df_dates)
         return self.make_batches(df_prep)
