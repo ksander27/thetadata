@@ -213,9 +213,7 @@ class _Option(MyWrapper):
         self.req_type = "expirations"
         
         self.url = f"{self.base_url}/{self.call_type}/{self.req_type}"
-        print(f"url opt - {self.url}")
         self.params = {"root": self.root}
-        print(f"params opt - {self.params}")
         return self._get_data()
     
     def get_list_dates_trade(self) -> List[str]:
