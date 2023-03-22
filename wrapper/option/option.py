@@ -11,48 +11,14 @@ class Option(_Option):
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
         
-    def get_iv_dates_from_days_ago(self, days_ago: int) -> Optional[List[str]]:
-        """
-        Get a list of dates of implied volatility betweem the option exp and `days_ago` days ago.
+    def get_iv_dates_from_days_ago(self, days_ago: Optional[int] = None) -> Optional[List[str]]:
+        if days_ago is not None:
+            if not isinstance(days_ago, int):
+                raise TypeError("[+] days_ago must be a positive integer")
+            if days_ago < 0:
+                raise ValueError("[+] days_ago must be a positive integer")
 
-        Parameters:
-        -----------
-        days_ago : int
-            The number of days ago to get the list of implied volatility dates for.
-
-        Raises:
-        -------
-        TypeError: If the days_ago parameter is not an integer.
-        ValueError: If the days_ago parameter is a negative integer.
-
-        Returns:
-        --------
-        Optional[List[str]]
-            A list of dates of implied volatility for the option expiring `days_ago` days ago. If there is no data 
-            for the contract or the contract does not have a strike and a right, return None.
-            
-        Notes:
-        ------
-        This method raises an exception if there is no data for the specified contract or if the contract does not 
-        have a strike and a right.
-
-        Example:
-        --------
-        >>> option = Option('AAPL', '20220318', 150, 'C')
-        >>> dates = option.get_implied_vol_days_ago(10)
-        [+] 5 business days for 20220318
-        >>> print(dates)
-        ['20220304', '20220307', '20220308', '20220309', '20220310']
-        """
-        
-        date_range = None
-        if not isinstance(days_ago,int) :
-            raise TypeError("[+] days_ago must be positive integer")
-        if days_ago <0:
-            raise ValueError("[+] days_ago must be positive integer")
-            
-
-        args = {"root":self.root,"exp":self.exp}
+        args = {"root": self.root, "exp": self.exp}
 
         if self.strike and self.right:
             args["strike"] = self.strike
@@ -63,24 +29,29 @@ class Option(_Option):
             pass
 
         _exp = datetime.strptime(self._exp, '%Y%m%d')
-        if YESTERDAY > _exp:
-            date_range = pd.date_range(end=_exp, periods=days_ago, freq='B')
-        else:
-            date_range = pd.date_range(end= YESTERDAY, periods=days_ago, freq='B')
+        if days_ago is not None:
+            if YESTERDAY > _exp:
+                date_range = pd.date_range(end=_exp, periods=days_ago, freq='B')
+            else:
+                date_range = pd.date_range(end=YESTERDAY, periods=days_ago, freq='B')
 
         try:
             option = Option(**args)
             date_implied_vol = option.get_list_dates_implied_volatility()
 
-            if len(date_implied_vol)>0:
+            if len(date_implied_vol) > 0:
                 date_implied_vol = [str(_dict.get("implied_volatility")) for _dict in date_implied_vol]
-                date_range = [date for date in date_range.strftime('%Y%m%d').to_list() if date in date_implied_vol]
-                print(f"[+] {len(date_range)} business days for {self.exp}")
-            return date_range
-        
+                if days_ago is not None:
+                    date_range = [date for date in date_range.strftime('%Y%m%d').to_list() if date in date_implied_vol]
+                    print(f"[+] {len(date_range)} business days for {self.exp}")
+                else:
+                    date_range = date_implied_vol
+                return date_range
+
         except NoDataForContract:
             print(f"[+] NO IMPLIED VOL DATA FOR {self.exp} - check with thetadata")
             return None
+
         
     def get_desired_expirations(self, min_exp_date: str, max_exp_date: str, freq_exp: str = 'monthly') -> List[str]:
         """
