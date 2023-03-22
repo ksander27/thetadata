@@ -66,7 +66,6 @@ class AppManager():
         return self._file
     
     def get_filename(self):    
-
         self.filename = f"{self._get_DIR()}/{self._get_file()}.csv" 
         return self.filename
     
@@ -231,16 +230,51 @@ class ExpiryManager(AppManager):
     
     def get_yesterday_data(self):
         df_data = None
+        option = Option(self.root,self.exp)
+        try:
+            date_range = option.get_iv_dates_from_days_ago(self.days_ago)
+        except NoDataForContract:
+            date_range = None
 
-        # Get yesterday 
+        if date_range is None :
+            print(f"[+] mn - No IV data for {self.exp}")
+        else:
+            # Check if file already exists
+            self.start_date,self.end_date = date_range[0],date_range[-1]
 
-        # Check that yesterday is in iv dates 
+            if not self.isFile():
+                option = Option(self.root,self.exp)
+                desired_strikes = option.get_desired_strikes(self.strike_multiple)
 
-        # If not file 
+                df_batches = pd.DataFrame([{"root":self.root, "exp":self.exp,"right":right,"strike":strike}
+                                                                    for strike in desired_strikes
+                                                                    for right in ["call","put"]])
+                
+                method, key_params = "get_list_dates_implied_volatility",[]
+                downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
+                                ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
+                df_dates = downloader.async_download_contracts()
 
-        # Option get_strikes
-        # Build contract batch 
-        # If batch - get method and dl
+                rows =df_dates.shape[0]
+                print(f"[+] mn - Total {rows} contracts with dates in {self.exp}.")
 
-        # At the manager level - once all the tickers for the day are done, take all the files and create one big partition
+                if df_dates is not None:
+                    # Build list of args and params
+                    batcher = ExpiryBatcher(exp=self.exp,days_ago=self.days_ago,date_key="implied_volatility"
+                                            ,freq_batch=self.freq_batch,endpoint_params=self.endpoint_params)
+
+                    df_batches = batcher.get_batches(df_dates=df_dates)
+                    method = self.get_method()
+                    key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
+
+                    rows = df_batches.shape[0]
+                    print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")                    
+
+                    # Fetching data for method
+                    downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
+                                                ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
+                                                 ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
+
+                    df_data = downloader.async_download_contracts()
+
         return df_data
