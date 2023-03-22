@@ -232,9 +232,9 @@ class ExpiryManager(AppManager):
         try:
             date_range = option.get_iv_dates_from_days_ago(self.days_ago)
         except NoDataForContract:
-            date_range = None
+            date_range = []
 
-        if date_range is None :
+        if len(date_range) ==0  :
             print(f"[+] mn - No IV data for {self.exp}")
         else:
             # Check if file already exists
