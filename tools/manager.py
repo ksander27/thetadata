@@ -240,7 +240,8 @@ class ExpiryManager(AppManager):
             print(f"[+] mn - No IV data for {self.exp}")
         else:
             # Check if file already exists
-            self.start_date,self.end_date = date_range[0],date_range[-1]
+            self.start_date,self.end_date = date_range[-1],date_range[-1]
+            print(f"[+] mn - Fetching for {self.root} {self.exp} - {self.start_date} {self.end_date}")
 
             if not self.isFile():
                 option = Option(self.root,self.exp)
