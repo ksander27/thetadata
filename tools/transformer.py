@@ -126,8 +126,11 @@ class ExpiryBatcher(BatchManager):
         if not df_dates.empty:
             return df_dates
         else:
-            df_tmp.to_csv("/home/jupyter/data/pre_filter.csv",index=False)
-            raise ValueError("[+] bt - Expiry Batcher - all dates are filtered.")
+            tmpfile = f"/home/jupyter/data/pre_filter.csv"
+            df_tmp.to_csv(tmpfile,index=False)
+            print(f"[+] bt - Expiry Batcher - all dates are filtered - saved at {tmpfile}")
+            #raise ValueError("[+] bt - Expiry Batcher - all dates are filtered.")
+            return None
             
     def get_yesterday_batches(self,df_dates,bday=True):
         self.days_ago = 1
