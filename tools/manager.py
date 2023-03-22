@@ -224,8 +224,6 @@ class ExpiryManager(AppManager):
                                                 ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
                     
                     df_data = downloader.async_download_contracts()
-            
-
         return df_data
     
     def get_yesterday_data(self):
@@ -241,7 +239,7 @@ class ExpiryManager(AppManager):
         else:
             # Check if file already exists
             print(date_range)
-            self.start_date,self.end_date = date_range[-1],date_range[-1]
+            self.start_date,self.end_date = date_range[0],date_range[-1]
             print(f"[+] mn - Fetching for {self.root} {self.exp} - {self.start_date} {self.end_date}")
 
             if not self.isFile():
