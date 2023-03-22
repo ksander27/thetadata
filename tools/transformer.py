@@ -82,10 +82,37 @@ class ExpiryBatcher(BatchManager):
 
         if self.days_ago is not None:
             df_dates['cut_off'] = df_dates['exp_dt'] - pd.tseries.offsets.BDay(self.days_ago)
-            print(f"Cut-off dates: {df_dates['cut_off']}") 
             df_dates['is_within_n_business_days_ago'] = df_dates[f"{self.date_key}_dt"] > df_dates['cut_off']
-            print(f"Filtering condition: {df_dates['is_within_n_business_days_ago']}")
             df_dates = df_dates[df_dates['is_within_n_business_days_ago'] == True]
+
+        df_dates = df_dates.rename(columns={f"{self.date_key}_dt": "dt_key",
+                                            self.date_key: "dt"})
+
+        print(f"[+] bt - Filtered {df_dates.shape[0]} contracts with dates in {self.exp}")
+
+        if not df_dates.empty:
+            return df_dates
+        else:
+            tmp = "/home/jupyter/data/pre_filter.csv"
+            df_tmp.to_csv(tmp,index=False)
+            raise ValueError(f"[+] bt - Expiry Batcher - all dates are filtered - file saved @ {tmp}.")
+            
+    def prepare_yesterday(self, df_dates: pd.DataFrame) -> pd.DataFrame:
+        df_tmp = df_dates.copy()
+        # Normalize strike
+        df_dates["strike"] /= 1000
+
+        # Convert date columns to datetime64 format
+        df_dates[self.date_key] = df_dates[self.date_key].astype(str)
+        df_dates['exp_dt'] = pd.to_datetime(df_dates['exp'], format='%Y%m%d')
+        df_dates[f"{self.date_key}_dt"] = pd.to_datetime(df_dates[self.date_key], format='%Y%m%d')
+
+        # Calculate the cut-off date as the previous business day
+        today = pd.Timestamp.now().normalize()
+        previous_business_day = today - pd.tseries.offsets.BDay(1)
+
+        # Filter the DataFrame for the previous business day
+        df_dates = df_dates[df_dates[f"{self.date_key}_dt"] == previous_business_day]
 
         df_dates = df_dates.rename(columns={f"{self.date_key}_dt": "dt_key",
                                             self.date_key: "dt"})
@@ -97,6 +124,11 @@ class ExpiryBatcher(BatchManager):
         else:
             df_tmp.to_csv("/home/jupyter/data/pre_filter.csv",index=False)
             raise ValueError("[+] bt - Expiry Batcher - all dates are filtered.")
+
+            
+    def get_yesterday_batches(self,df_dates):
+        df_prep = self.prepare_yesterday(df_dates)
+        return self.make_batches(df_prep)
 
     def get_batches(self,df_dates):
         df_prep = self.prepare_dates(df_dates)
