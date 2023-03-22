@@ -238,8 +238,7 @@ class ExpiryManager(AppManager):
             print(f"[+] mn - No IV data for {self.exp}")
         else:
             # Check if file already exists
-            print(date_range)
-            self.start_date,self.end_date = date_range[0],date_range[-1]
+            self.start_date,self.end_date = date_range[-1],date_range[-1]
             print(f"[+] mn - Fetching for {self.root} {self.exp} - {self.start_date} {self.end_date}")
 
             if not self.isFile():
@@ -263,7 +262,7 @@ class ExpiryManager(AppManager):
                     batcher = ExpiryBatcher(exp=self.exp,days_ago=self.days_ago,date_key="implied_volatility"
                                             ,freq_batch=self.freq_batch,endpoint_params=self.endpoint_params)
 
-                    df_batches = batcher.get_batches(df_dates=df_dates)
+                    df_batches = batcher.get_yesterday_batches(df_dates=df_dates)
                     method = self.get_method()
                     key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
 
