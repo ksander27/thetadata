@@ -135,7 +135,10 @@ class ExpiryBatcher(BatchManager):
     def get_yesterday_batches(self,df_dates,bday=True):
         self.days_ago = 1
         df_prep = self.prepare_at_days_ago(df_dates, bday=bday)
-        return self.make_batches(df_prep)
+        if df_prep is not None:
+            return self.make_batches(df_prep)
+        else: 
+            return None
     
     def get_at_days_ago_batches(self,df_dates,bday=True):
         df_prep = self.prepare_at_days_ago(df_dates,bday)

@@ -163,18 +163,19 @@ class ExpiryManager(AppManager):
                                             ,freq_batch=self.freq_batch,endpoint_params=self.endpoint_params)
 
                     df_batches = batcher.get_batches_from_exp(df_dates=df_dates)
-                    method = self.get_method()
-                    key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
+                    if df_batches is not None:
+                        method = self.get_method()
+                        key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
 
-                    rows = df_batches.shape[0]
-                    print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")                    
+                        rows = df_batches.shape[0]
+                        print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")                    
 
-                    # Fetching data for method
-                    downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
-                                                ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
-                                                 ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
+                        # Fetching data for method
+                        downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
+                                                    ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
+                                                    ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
 
-                    df_data = downloader.async_download_contracts()
+                        df_data = downloader.async_download_contracts()
 
         return df_data
     
