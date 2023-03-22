@@ -162,7 +162,7 @@ class ExpiryManager(AppManager):
                     batcher = ExpiryBatcher(exp=self.exp,days_ago=self.days_ago,date_key="implied_volatility"
                                             ,freq_batch=self.freq_batch,endpoint_params=self.endpoint_params)
 
-                    df_batches = batcher.get_batches(df_dates=df_dates)
+                    df_batches = batcher.get_batches_from_exp(df_dates=df_dates)
                     method = self.get_method()
                     key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
 
@@ -212,7 +212,7 @@ class ExpiryManager(AppManager):
                     batcher = ExpiryBatcher(exp=self.exp,days_ago=self.days_ago,date_key="open_interest"
                                             ,freq_batch=self.freq_batch,endpoint_params=self.endpoint_params)
                                             
-                    df_batches = batcher.get_batches(df_dates=df_dates)
+                    df_batches = batcher.get_batches_from_exp(df_dates=df_dates)
                     method = self.get_method()
                     key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
 

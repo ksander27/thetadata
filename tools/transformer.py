@@ -42,7 +42,7 @@ class ExpiryBatcher(BatchManager):
         self.days_ago = days_ago
         self.date_key = date_key
 
-    def prepare_dates(self, df_dates: pd.DataFrame) -> pd.DataFrame:
+    def prepare_dates_from_exp(self, df_dates: pd.DataFrame) -> pd.DataFrame:
         """
         Filters and prepares the input DataFrame containing date and implied volatility information based on the number of business days ago.
 
@@ -96,8 +96,8 @@ class ExpiryBatcher(BatchManager):
             tmp = "/home/jupyter/data/pre_filter.csv"
             df_tmp.to_csv(tmp,index=False)
             raise ValueError(f"[+] bt - Expiry Batcher - all dates are filtered - file saved @ {tmp}.")
-            
-    def prepare_yesterday(self, df_dates: pd.DataFrame) -> pd.DataFrame:
+        
+    def prepare_at_days_ago(self, df_dates: pd.DataFrame, bday: bool = True) -> pd.DataFrame:
         df_tmp = df_dates.copy()
         # Normalize strike
         df_dates["strike"] /= 1000
@@ -107,12 +107,16 @@ class ExpiryBatcher(BatchManager):
         df_dates['exp_dt'] = pd.to_datetime(df_dates['exp'], format='%Y%m%d')
         df_dates[f"{self.date_key}_dt"] = pd.to_datetime(df_dates[self.date_key], format='%Y%m%d')
 
-        # Calculate the cut-off date as the previous business day
+        # Calculate the target date based on days_ago and the bday parameter
         today = pd.Timestamp.now().normalize()
-        previous_business_day = today - pd.tseries.offsets.BDay(1)
 
-        # Filter the DataFrame for the previous business day
-        df_dates = df_dates[df_dates[f"{self.date_key}_dt"] == previous_business_day]
+        if bday:
+            target_date = today - pd.tseries.offsets.BDay(self.days_ago)
+        else:
+            target_date = today - pd.Timedelta(days=self.days_ago)
+
+        # Filter the DataFrame for the target date
+        df_dates = df_dates[df_dates[f"{self.date_key}_dt"] == target_date]
 
         df_dates = df_dates.rename(columns={f"{self.date_key}_dt": "dt_key",
                                             self.date_key: "dt"})
@@ -126,10 +130,18 @@ class ExpiryBatcher(BatchManager):
             raise ValueError("[+] bt - Expiry Batcher - all dates are filtered.")
 
             
-    def get_yesterday_batches(self,df_dates):
-        df_prep = self.prepare_yesterday(df_dates)
+    def prepare_yesterday(self, df_dates: pd.DataFrame, bday: bool = True) -> pd.DataFrame:
+        self.days_ago = 1
+        return self.prepare_at_days_ago(df_dates, bday=bday)
+            
+    def get_yesterday_batches(self,df_dates,bday=True):
+        df_prep = self.prepare_yesterday(df_dates,bday)
+        return self.make_batches(df_prep)
+    
+    def get_at_days_ago_batches(self,df_dates,bday=True):
+        df_prep = self.prepare_at_days_ago(df_dates,bday)
         return self.make_batches(df_prep)
 
-    def get_batches(self,df_dates):
-        df_prep = self.prepare_dates(df_dates)
+    def get_batches_from_exp(self,df_dates):
+        df_prep = self.prepare_dates_from_exp(df_dates)
         return self.make_batches(df_prep)
