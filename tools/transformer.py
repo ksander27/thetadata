@@ -70,16 +70,8 @@ class ExpiryBatcher(BatchManager):
                 - "dt": implied volatility dates in '%Y%m%d' format
                 - "exp_dt": expiration dates in datetime64 format
 
-        Example:
-        --------
-        >>> df_dates = pd.DataFrame({'strike': [150000, 155000, 160000],
-                                    'implied_volatility': ['20230310', '20230311', '20230312'],
-                                    'exp': ['20230318', '20230318', '20230318']})
-        >>> obj = SomeClass()
-        >>> obj.days_ago = 5
-        >>> prepared_df = obj.prepare_dates(df_dates)
         """
-
+        df_tmp = df_dates.copy()
         # Normalize strike
         df_dates["strike"] /= 1000
 
@@ -101,6 +93,7 @@ class ExpiryBatcher(BatchManager):
         if not df_dates.empty:
             return df_dates
         else:
+            df_tmp.to_csv("/home/jupyter/data/pre_filter.csv",index=False)
             raise ValueError("[+] bt - Expiry Batcher - all dates are filtered.")
 
 
