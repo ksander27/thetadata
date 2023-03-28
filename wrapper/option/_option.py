@@ -153,6 +153,23 @@ class _Option(MyWrapper):
         }
         return self._get_data()
     
+    def _get_bulk_hist(self,start_date,end_date):
+        self.call_type = "bulk_hist"
+
+        _start_date=_format_date(start_date)
+        _end_date=_format_date(end_date)
+
+        if not self._isOptionRangeValid(_start_date,_end_date):
+            raise OptionError("The start_date end_date and expiry are not valid")
+        
+        self.url = f"{self.base_url}/{self.call_type}/{self.sec_type}/{self.req_type}"
+        self.params = {
+            "start_date":_start_date
+            ,"_end_date":_end_date
+        }
+        return self._get_data()
+
+    
     # List endpoints
     def get_list_roots(self) -> List[str]:
         """
