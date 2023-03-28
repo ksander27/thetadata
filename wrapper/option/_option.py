@@ -359,6 +359,11 @@ class _Option(MyWrapper):
         self.req_type = "trade_quote"
         return self._get_at_time(start_date,end_date,s_of_day)
     
+    # Bulk ednpoints
+    def get_bulk_hist_eod_quote_greeks(self,start_date,end_date):
+        self.req_type = "eod_quote_greeks"
+        return self._get_bulk_hist(start_date,end_date)
+    
     #def get_at_time_ohlc(self,start_date,end_date,s_of_day):
     #    self.req_type = "ohlc"
     #    return self._get_at_time(start_date,end_date,s_of_day)
