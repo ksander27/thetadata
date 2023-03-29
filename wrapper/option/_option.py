@@ -164,8 +164,11 @@ class _Option(MyWrapper):
         
         self.url = f"{self.base_url}/{self.call_type}/{self.sec_type}/{self.req_type}"
         self.params = {
+            
             "start_date":_start_date
-            ,"_end_date":_end_date
+            ,"end_date":_end_date
+            ,"root":self.root
+            ,"exp":self._exp
         }
         return self._get_data()
 
