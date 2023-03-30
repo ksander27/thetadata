@@ -46,7 +46,8 @@ class MyWrapper:
         files = os.listdir(td_dir)
         config_files = [f for f in files if re.match(r'config_\d+.properties', f)][0]
         if config_files:
-            return re.search(r'config_(\d+)', config_files)
+            config_id = int(config_files.split('.')[0].split('_')[-1])
+            return 25510 + config_id
         else:
             raise WrapperError("No config file found.")
 
