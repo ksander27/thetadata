@@ -6,6 +6,9 @@ import re
 
 from .utils import ResponseFormatError
 
+class WrapperError(Exception):
+    pass
+
 class RootOrExpirationError(Exception):
     pass
 
@@ -41,8 +44,11 @@ class MyWrapper:
     def _get_port(self):
         td_dir = os.environ["TD_DIR"]
         files = os.listdir(td_dir)
-        config_files = [f for f in files if re.match(r'config_\d+.properties', f)]
-        return config_files[0]
+        config_files = [f for f in files if re.match(r'config_\d+.properties', f)][0]
+        if config_files:
+            return re.search(r'config_(\d+)', config_files)
+        else:
+            raise WrapperError("No config file found.")
 
 
     def _get_method(self,method,params=None):
