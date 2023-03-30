@@ -1,5 +1,7 @@
 from typing import Dict,Any,Union,List
 import requests as rq
+import os 
+import re
 
 
 from .utils import ResponseFormatError
@@ -15,7 +17,9 @@ class MyWrapper:
         """
         Initializes the MyWrapper class with the base url and call type.
         """
-        self.base_url = "http://localhost:25510"
+        
+        self._port = self._get_port()
+        self.base_url = f"http://localhost:{self._port}"
         self.call_type = None
         self.sec_type = None
         self.req_type = None
@@ -33,6 +37,13 @@ class MyWrapper:
         
         self.format = None
         self._async = _async
+
+    def _get_port(self):
+        td_dir = os.environ["TD_DIR"]
+        files = os.listdir(td_dir)
+        config_files = [f for f in files if re.match(r'config_\d+.properties', f)]
+        return config_files[0]
+
 
     def _get_method(self,method,params=None):
         if not params:
