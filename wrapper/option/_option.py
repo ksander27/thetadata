@@ -155,6 +155,7 @@ class _Option(MyWrapper):
     
     def _get_bulk_hist(self,start_date,end_date):
         self.call_type = "bulk_hist"
+        self._bulk = True
 
         _start_date=_format_date(start_date)
         _end_date=_format_date(end_date)

@@ -40,6 +40,7 @@ class MyWrapper:
         
         self.format = None
         self._async = _async
+        self._bulk = None
 
     def _get_port(self):
         td_dir = os.environ["TD_DIR"]
@@ -123,8 +124,30 @@ class MyWrapper:
     def _parse_data(self):
         if self.format is None:
             return [{self.req_type: element} for element in self.response]
+        elif self._bulk:
+            # data =[]
+            # for element in self.response:
+            #     _contract = element.get("contract")
+            #     _ticks = element.get("ticks")
+            #     for tick in _ticks:
+            #         _dict = {key:tick[idx] for idx,key in enumerate(self.format)}
+            #         _dict = {**_contract,**_dict}
+            #         data.append(_dict)
+            data = [
+                {
+                    **_contract,
+                    **{key: tick[idx] for idx, key in enumerate(self.format)}
+                }
+                for element in self.response
+                for _contract in [element.get("contract")]
+                for _ticks in [element.get("ticks")]
+                for tick in _ticks
+            ]
+
+            return data
         else:
             return [{key: element[idx] for idx, key in enumerate(self.format)} for element in self.response]
+                
 
     def _parse_response(self):
         """
