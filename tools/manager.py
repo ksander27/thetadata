@@ -1,5 +1,6 @@
 import os
 import pandas as pd 
+import json
 import time
 import subprocess
 import psutil
@@ -211,8 +212,10 @@ class ExpiryManager(AppManager):
                 downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
                                                    ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
                                                    ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
-                
-                df_data = downloader.async_download_contracts()
+                try:
+                    df_data = downloader.async_download_contracts()
+                except json.JSONDecodeError:
+                    print(f"[+] ERROR JSON for chain {self.root} {self.exp}")
 
         return df_data
     
