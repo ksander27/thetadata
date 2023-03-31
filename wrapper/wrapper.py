@@ -117,7 +117,7 @@ class MyWrapper:
         if self.err_type != "null":
             if "Nonexistent root symbol or expiration" in self.err_msg:
                 raise RootOrExpirationError(f"[+] Error code - {self.err_type} : {self.err_msg}")
-            elif "No data for the specified timeframe & contract" in self.err_msg:
+            elif "no data" in self.err_msg.lower():
                 raise NoDataForContract(f"[+] Error code - {self.err_type} : {self.err_msg}")
         return True
     
@@ -125,14 +125,6 @@ class MyWrapper:
         if self.format is None:
             return [{self.req_type: element} for element in self.response]
         elif self._bulk:
-            # data =[]
-            # for element in self.response:
-            #     _contract = element.get("contract")
-            #     _ticks = element.get("ticks")
-            #     for tick in _ticks:
-            #         _dict = {key:tick[idx] for idx,key in enumerate(self.format)}
-            #         _dict = {**_contract,**_dict}
-            #         data.append(_dict)
             data = [
                 {
                     **_contract,
