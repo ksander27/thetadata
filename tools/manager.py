@@ -56,6 +56,9 @@ class AppManager():
     def get_method(self):
         self.method = f"get_{self.call_type}_{self.endpoint}"
         return self.method
+    
+    def get_key_params(self):
+        return ["start_date","end_date"] + list(self.endpoint_params.keys())
 
     def _get_DIR(self):
         self._DIR = f"/home/jupyter/data/{self.call_type}/{self.endpoint}/{self.root}"
@@ -176,6 +179,40 @@ class ExpiryManager(AppManager):
                                                     ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
 
                         df_data = downloader.async_download_contracts()
+
+        return df_data
+    
+    def get_bulk_hist_exp_data(self):
+        df_data = None 
+
+        option = Option(self.root,self.exp)
+        try:
+            date_range = option.get_iv_dates_from_days_ago(self.days_ago)
+        except NoDataForContract:
+            date_range = []
+
+        if len(date_range)==0:
+            print(f"[+] mn - No IV data for {self.exp}")
+        else:
+            #Check if files already exist
+            self.start_date,self.end_date = date_range[0],date_range[-1]
+            if not self.isFile():
+                # Don't need to get all dates with implied vol for each contract in exp - just do bulk_hist
+                method = self.get_method()
+                key_params = self.get_key_params()
+                batches = [{"root":self.root,"exp":self.exp,"right":"cp","strike":0
+                            ,"start_date":_date,"end_date":_date} 
+                           for _date in date_range]
+                df_batches = pd.DataFrame(batches)
+                rows = df_batches.shape[0]
+                print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}")
+
+                # Fetching data for method
+                downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
+                                                   ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
+                                                   ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
+                
+                df_data = downloader.async_download_contracts()
 
         return df_data
     
