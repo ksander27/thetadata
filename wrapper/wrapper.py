@@ -106,7 +106,6 @@ class MyWrapper:
         """        
 
         if not self._async:
-            print(self.request)
             _ = self.request.json()
             self.header = _.get('header')
 
