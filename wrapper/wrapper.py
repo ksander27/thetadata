@@ -1,4 +1,5 @@
 from typing import Dict,Any,Union,List
+from dotenv import load_dotenv
 import requests as rq
 import os 
 import re
@@ -42,16 +43,23 @@ class MyWrapper:
         self._async = _async
         self._bulk = None
 
+    # def _get_port(self):
+    #     td_dir = os.environ["TD_DIR"]
+    #     files = os.listdir(td_dir)
+    #     config_files = [f for f in files if re.match(r'config_\d+.properties', f)][0]
+    #     if config_files:
+    #         config_id = int(config_files.split('.')[0].split('_')[-1])
+    #         return 25510 + config_id
+    #     else:
+    #         raise WrapperError("No config file found.")]
+
     def _get_port(self):
         td_dir = os.environ["TD_DIR"]
-        files = os.listdir(td_dir)
-        config_files = [f for f in files if re.match(r'config_\d+.properties', f)][0]
-        if config_files:
-            config_id = int(config_files.split('.')[0].split('_')[-1])
-            return 25510 + config_id
-        else:
-            raise WrapperError("No config file found.")
+        env_path = f"{td_dir}/.td_env"
 
+        load_dotenv(env_path)
+        config_id = os.environ.get("CONFIG_ID")
+        return 25510 + int(config_id)
 
     def _get_method(self,method,params=None):
         if not params:
