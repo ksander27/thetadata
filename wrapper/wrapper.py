@@ -42,10 +42,10 @@ class MyWrapper:
         self._async = _async
         self._bulk = None
 
+
     def _get_port(self):
         td_dir = os.environ["TD_DIR"]
         env_path = f"{td_dir}/.td_env"
-
         load_dotenv(env_path)
         config_id = os.environ.get("CONFIG_ID")
         return 25510 + int(config_id)
