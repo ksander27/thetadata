@@ -119,7 +119,7 @@ class AsyncFetcher():
         timer_batch  = Timer()
         self._task_id = 0
         tasks = []
-        connector = aiohttp.TCPConnector(limit_per_host=self.batch_size)
+        connector = aiohttp.TCPConnector()
         async with aiohttp.ClientSession(connector=connector) as session:
             for contract in batch:
                 
