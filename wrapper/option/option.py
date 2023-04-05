@@ -240,7 +240,7 @@ class Option(_Option):
             print(f"[+] OPT - {len(strikes)}")
             if len(strikes) > 0:
                 df = pd.DataFrame(strikes)
-                print(f"[+] OPT - df")
+                print(f"[+] OPT - {strike_multiple}")
                 
                 df = df[df["strikes"] % strike_multiple == 0]
                 print(df.head())
