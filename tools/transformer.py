@@ -154,6 +154,7 @@ class ExpiryBatcher(BatchManager):
 
         if not df_dates.empty:
             print(f"[+] bt - dt {self.dt}")
+            tmpfile = f"/home/jupyter/data/pre_filter.csv"
             df_tmp.to_csv(tmpfile,index=False)
             print(f"[+] bt - Expiry Batcher - all dates are filtered - saved at {tmpfile}")
             return df_dates
