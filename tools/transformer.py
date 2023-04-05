@@ -141,7 +141,6 @@ class ExpiryBatcher(BatchManager):
 
         # Convert date columns to datetime64 format
         df_dates[self.date_key] = df_dates[self.date_key].astype(str)
-        df_dates['exp_dt'] = pd.to_datetime(df_dates['exp'], format='%Y%m%d')
         df_dates[f"{self.date_key}_dt"] = pd.to_datetime(df_dates[self.date_key], format='%Y%m%d')
 
         # Filter the DataFrame for the target date
@@ -153,10 +152,6 @@ class ExpiryBatcher(BatchManager):
         print(f"[+] bt - Filtered {df_dates.shape[0]} contracts with dates in {self.exp}")
 
         if not df_dates.empty:
-            print(f"[+] bt - dt {self.dt}")
-            tmpfile = f"/home/jupyter/data/pre_filter.csv"
-            df_tmp.to_csv(tmpfile,index=False)
-            print(f"[+] bt - Expiry Batcher - all dates are filtered - saved at {tmpfile}")
             return df_dates
         else:
             tmpfile = f"/home/jupyter/data/pre_filter.csv"

@@ -163,7 +163,7 @@ class Option(_Option):
             max_exp_date = '2099-12-31'  # Arbitrary far-off future date
 
         try:
-            expirations = [str(expiration.get("expirations")) for expiration in self.get_list_expirations()]
+            expirations = [str(int(expiration.get("expirations"))) for expiration in self.get_list_expirations()]
 
             if 'mon' in freq_exp.lower():
                 exp_range = pd.date_range(min_exp_date, max_exp_date, freq='WOM-3FRI')
