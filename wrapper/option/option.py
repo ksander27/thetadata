@@ -31,7 +31,7 @@ class Option(_Option):
         try:
             date_implied_vol = self.get_list_dates_implied_volatility()
             if len(date_implied_vol) > 0:
-                date_implied_vol = [str(_dict.get("implied_volatility")) for _dict in date_implied_vol]
+                date_implied_vol = [str(int(_dict.get("implied_volatility"))) for _dict in date_implied_vol]
 
             if not days_ago :
                 return date_implied_vol
