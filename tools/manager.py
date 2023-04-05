@@ -246,9 +246,9 @@ class ExpiryManager(AppManager):
         if not self.isFile():
             option = Option(self.root,self.exp)
             desired_strikes = option.get_desired_strikes(self.strike_multiple)
-            print(desired_strikes,type(desired_strikes),len(desired_strikes))
-            if desired_strikes == []:
-                print(f"[+] No strikes for {self.root} {self.exp} - ODD")
+
+            if len(desired_strikes)==0:
+                print(f"[+] No strikes for {self.root} {self.exp} - check multiples")
             else:
                 df_batches = pd.DataFrame([{"root":self.root, "exp":self.exp,"right":right,"strike":strike}
                                                                     for strike in desired_strikes
