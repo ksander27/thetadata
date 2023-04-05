@@ -261,7 +261,7 @@ class ExpiryManager(AppManager):
 
                     if df_dates is not None:
                         # Build list of args and params
-                        batcher = ExpiryBatcher(exp=self.exp,dt=self._dt,date_key="implied_volatility"
+                        batcher = ExpiryBatcher(exp=self.exp,dt=self.dt,date_key="implied_volatility"
                                                 ,freq_batch='D',endpoint_params=self.endpoint_params)
 
                         df_batches = batcher.get_dt_batches(df_dates=df_dates)
