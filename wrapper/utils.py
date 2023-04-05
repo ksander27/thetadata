@@ -27,7 +27,7 @@ def _format_date(date: str) -> str:
         # Use dateparser to parse the time
         _date = dateparser.parse(date)
         if not _date :
-            raise ValueError("Date format isn't correct and (ideally) should be YYYYMMDD - currently {date}")
+            raise ValueError(f"Date format isn't correct and (ideally) should be YYYYMMDD - currently {date}")
         else:
             return dt.datetime.strftime(_date, "%Y%m%d")
 
@@ -39,7 +39,7 @@ def _isDateRangeValid(start_date,end_date):
     
 def _format_ivl(ivl):
     if not isinstance(ivl,int):
-        raise IVLError("Interval must be an integer")
+        raise IVLError(f"Interval must be an integer - currently {ivl}")
     if ivl < 0:
-        raise IVLError("Interval must be non-negative")
+        raise IVLError(f"Interval must be non-negative - currently {ivl}")
     return int(ivl*1000)
