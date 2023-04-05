@@ -234,21 +234,21 @@ class Option(_Option):
             raise OptionError("[+] An expiration is required to get the desired strikes")
 
         try:
-            strike_multiple *= 1000
+
+            
             strikes = self.get_list_strikes()
             
-            print(f"[+] OPT - {len(strikes)}")
             if len(strikes) > 0:
                 df = pd.DataFrame(strikes)
-                print(f"[+] OPT - {strike_multiple}")
                 
-                df = df[df["strikes"] % strike_multiple == 0]
-                print(df.head())
-                if min_strike is not None:
-                    df = df[df["strikes"] >= min_strike * 1000]
+                if strike_multiple >0:
+                    strike_multiple *= 1000
+                    df = df[df["strikes"] % strike_multiple == 0]
+                    if min_strike is not None:
+                        df = df[df["strikes"] >= min_strike * 1000]
 
-                if max_strike is not None:
-                    df = df[df["strikes"] <= max_strike * 1000]
+                    if max_strike is not None:
+                        df = df[df["strikes"] <= max_strike * 1000]
 
                 desired_strikes = df.strikes.values / 1000
             return desired_strikes
