@@ -237,7 +237,7 @@ class Option(_Option):
             strike_multiple *= 1000
             strikes = self.get_list_strikes()
             
-
+            print(f"[+] OPT - {len(strikes)}")
             if len(strikes) > 0:
                 df = pd.DataFrame(strikes)
                 print(f"[+] OPT - df")
