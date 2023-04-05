@@ -23,9 +23,9 @@ class Option(_Option):
         if self.strike or self.right:
             raise OptionError("[+] We need a strike and a right")
         if days_ago and not isinstance(days_ago, int):
-            raise TypeError("[+] days_ago must be a positive integer")
+            raise TypeError(f"[+] days_ago must be a positive integer -currently {days_ago}")
         if days_ago < 0:
-            raise ValueError("[+] days_ago must be a positive integer")
+            raise ValueError("[+] days_ago must be a positive integer -currently {days_ago}")
 
         try:
             date_implied_vol = self.get_list_dates_implied_volatility()
