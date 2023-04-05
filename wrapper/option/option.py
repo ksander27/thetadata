@@ -18,7 +18,6 @@ class Option(_Option):
             
             return dt
         else:
-            print(f"OPT - {date_range}")
             return False
         
     def get_iv_dates_from_days_ago(self, days_ago: Optional[int] = None) -> Optional[List[str]]:
@@ -31,6 +30,8 @@ class Option(_Option):
 
         try:
             date_implied_vol = self.get_list_dates_implied_volatility()
+            if len(date_implied_vol) > 0:
+                date_implied_vol = [str(_dict.get("implied_volatility")) for _dict in date_implied_vol]
 
             if not days_ago :
                 return date_implied_vol
@@ -42,8 +43,7 @@ class Option(_Option):
                 else:
                     date_range = pd.date_range(end=YESTERDAY, periods=days_ago, freq='B')
 
-                if len(date_implied_vol) > 0:
-                    date_implied_vol = [str(_dict.get("implied_volatility")) for _dict in date_implied_vol]
+
 
                     date_range = [date for date in date_range.strftime('%Y%m%d').to_list() if date in date_implied_vol]
                     print(f"[+] {len(date_range)} business days for {self.exp}")
