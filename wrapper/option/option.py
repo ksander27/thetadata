@@ -24,7 +24,7 @@ class Option(_Option):
             raise OptionError("[+] We need a strike and a right")
         if days_ago and not isinstance(days_ago, int):
             raise TypeError(f"[+] days_ago must be a positive integer -currently {days_ago}")
-        if days_ago < 0:
+        if days_ago and days_ago < 0:
             raise ValueError("[+] days_ago must be a positive integer -currently {days_ago}")
 
         try:
