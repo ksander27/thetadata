@@ -15,6 +15,7 @@ class Option(_Option):
         _dt = _format_date(dt)
         date_range = self.get_iv_dates_from_days_ago()
         if _dt in date_range:
+            print(date_range)
             return dt
         else:
             return False
