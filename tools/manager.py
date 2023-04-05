@@ -246,7 +246,7 @@ class ExpiryManager(AppManager):
         if not self.isFile():
             option = Option(self.root,self.exp)
             desired_strikes = option.get_desired_strikes(self.strike_multiple)
-            print(desired_strikes)
+            print(desired_strikes,type(desired_strikes),len(desired_strikes))
             if desired_strikes == []:
                 print(f"[+] No strikes for {self.root} {self.exp} - ODD")
             else:
