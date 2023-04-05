@@ -246,39 +246,41 @@ class ExpiryManager(AppManager):
         if not self.isFile():
             option = Option(self.root,self.exp)
             desired_strikes = option.get_desired_strikes(self.strike_multiple)
-            print(desired_strikes)
-            df_batches = pd.DataFrame([{"root":self.root, "exp":self.exp,"right":right,"strike":strike}
-                                                                for strike in desired_strikes
-                                                                for right in ["call","put"]])
-            
-            method, key_params = "get_list_dates_implied_volatility",[]
-            print(df_batches.head())
-            downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
-                            ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
-            df_dates = downloader.async_download_contracts()
+            if desired_strikes == []:
+                print(f"[+] No strikes for {self.root} {self.exp} - ODD")
+            else:
+                df_batches = pd.DataFrame([{"root":self.root, "exp":self.exp,"right":right,"strike":strike}
+                                                                    for strike in desired_strikes
+                                                                    for right in ["call","put"]])
+                
+                method, key_params = "get_list_dates_implied_volatility",[]
+                print(df_batches.head())
+                downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
+                                ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
+                df_dates = downloader.async_download_contracts()
 
-            rows =df_dates.shape[0]
-            print(f"[+] mn - Total {rows} contracts with dates in {self.exp}.")
+                rows =df_dates.shape[0]
+                print(f"[+] mn - Total {rows} contracts with dates in {self.exp}.")
 
-            if df_dates is not None:
-                # Build list of args and params
-                batcher = ExpiryBatcher(exp=self.exp,dt=self._dt,date_key="implied_volatility"
-                                        ,freq_batch='D',endpoint_params=self.endpoint_params)
+                if df_dates is not None:
+                    # Build list of args and params
+                    batcher = ExpiryBatcher(exp=self.exp,dt=self._dt,date_key="implied_volatility"
+                                            ,freq_batch='D',endpoint_params=self.endpoint_params)
 
-                df_batches = batcher.get_dt_batches(df_dates=df_dates)
-                if df_batches is not None:
-                    method = self.get_method()
-                    key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
+                    df_batches = batcher.get_dt_batches(df_dates=df_dates)
+                    if df_batches is not None:
+                        method = self.get_method()
+                        key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
 
-                    rows = df_batches.shape[0]
-                    print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")                    
+                        rows = df_batches.shape[0]
+                        print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")                    
 
-                    # Fetching data for method
-                    downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
-                                                ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
-                                                ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
+                        # Fetching data for method
+                        downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
+                                                    ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
+                                                    ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
 
-                    df_data = downloader.async_download_contracts()
+                        df_data = downloader.async_download_contracts()
 
 
         return df_data
