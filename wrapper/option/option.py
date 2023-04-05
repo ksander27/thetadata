@@ -237,7 +237,7 @@ class Option(_Option):
 
             
             strikes = self.get_list_strikes()
-            print(f"[+] OPT - {strikes}")
+
             if len(strikes) > 0:
                 df = pd.DataFrame(strikes)
 
@@ -251,7 +251,7 @@ class Option(_Option):
                         df = df[df["strikes"] <= max_strike * 1000]
 
                 desired_strikes = df.strikes.values / 1000
-                print(f"[+] OPT - {desired_strikes}")
+
             return desired_strikes
 
         except NoDataForContract:
