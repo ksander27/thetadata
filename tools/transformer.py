@@ -36,10 +36,11 @@ class BatchManager():
         return df_batch
     
 class ExpiryBatcher(BatchManager):
-    def __init__(self,exp,date_key,days_ago,*args,**kwargs):
+    def __init__(self,exp,date_key,days_ago=None,dt=None,*args,**kwargs):
         super().__init__(*args,**kwargs)
         self.exp = exp
         self.days_ago = days_ago
+        self.dt = dt
         self.date_key = date_key
 
     def prepare_dates_from_exp(self, df_dates: pd.DataFrame) -> pd.DataFrame:
@@ -132,11 +133,41 @@ class ExpiryBatcher(BatchManager):
             df_tmp.to_csv(tmpfile,index=False)
             print(f"[+] bt - Expiry Batcher - all dates are filtered - saved at {tmpfile}")
             return None
-            #raise ValueError("[+] bt - Expiry Batcher - all dates are filtered.")
+
+    def prepare_dt(self, df_dates: pd.DataFrame, bday: bool = True) -> pd.DataFrame:
+        df_tmp = df_dates.copy()
+        # Normalize strike
+        df_dates["strike"] /= 1000
+
+        # Convert date columns to datetime64 format
+        df_dates[self.date_key] = df_dates[self.date_key].astype(str)
+        df_dates['exp_dt'] = pd.to_datetime(df_dates['exp'], format='%Y%m%d')
+        df_dates[f"{self.date_key}_dt"] = pd.to_datetime(df_dates[self.date_key], format='%Y%m%d')
+
+        # Filter the DataFrame for the target date
+        df_dates = df_dates[df_dates[f"{self.date_key}_dt"] == self.dt]
+
+        df_dates = df_dates.rename(columns={f"{self.date_key}_dt": "dt_key",
+                                            self.date_key: "dt"})
+
+        print(f"[+] bt - Filtered {df_dates.shape[0]} contracts with dates in {self.exp}")
+
+        if not df_dates.empty:
+            return df_dates
+        else:
+            tmpfile = f"/home/jupyter/data/pre_filter.csv"
+            df_tmp.to_csv(tmpfile,index=False)
+            print(f"[+] bt - Expiry Batcher - all dates are filtered - saved at {tmpfile}")
+            return None
             
     def get_yesterday_batches(self,df_dates,bday=True):
         self.days_ago = 1
         df_prep = self.prepare_at_days_ago(df_dates, bday=bday)
+        if df_prep is not None:
+            return self.make_batches(df_prep)
+        
+    def get_dt_batches(self,df_dates,bday=True):
+        df_prep = self.prepare_dt(df_dates, bday=bday)
         if df_prep is not None:
             return self.make_batches(df_prep)
     

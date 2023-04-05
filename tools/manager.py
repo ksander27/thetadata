@@ -6,7 +6,7 @@ import subprocess
 import psutil
 
 from . import AsyncDownloaderOption,ExpiryBatcher
-from ..wrapper import Option,NoDataForContract
+from ..wrapper import Option,NoDataForContract,_format_date
 
 
 
@@ -101,13 +101,15 @@ class AppManager():
 
 
 class ExpiryManager(AppManager):
-    def __init__(self,strike_multiple=5,days_ago='70',freq_batch='D'
+    def __init__(self,strike_multiple=5,days_ago='70',dt=None,freq_batch='D'
                  ,min_exp_date='2018-01-01',max_exp_date='2024-01-01',freq_exp='monthly'
                  ,BATCH_SIZE=128,TIMEOUT=60,MAX_RETRY=3,SLEEP=30,*args,**kwargs):
         super().__init__(*args,**kwargs)
         self.strike_multiple = strike_multiple
         self.days_ago = days_ago
         self.freq_batch = freq_batch
+        self.dt = dt
+        self._dt = self._get_dt()
         
         self.min_exp_date = min_exp_date
         self.max_exp_date = max_exp_date
@@ -128,6 +130,11 @@ class ExpiryManager(AppManager):
         print(f"""# mn - Download {self.root} - {self.exp} - {self.BATCH_SIZE} {self.freq_batch} """)
         print("""#-------------------------------------------#\n""")
         return None
+    
+    def _get_dt(self):
+        if self.dt:
+            return _format_date(self.dt)
+
         
     def get_hist_exp_data(self):
         df_data = None
@@ -190,9 +197,9 @@ class ExpiryManager(AppManager):
         try:
             date_range = option.get_iv_dates_from_days_ago(self.days_ago)
         except NoDataForContract:
-            date_range = []
+            date_range = None
 
-        if len(date_range)==0:
+        if date_range is None:
             print(f"[+] mn - No IV data for {self.exp}")
         else:
             #Check if files already exist
@@ -220,6 +227,62 @@ class ExpiryManager(AppManager):
         return df_data
     
 
+    def get_hist_data_dt(self):
+        df_data = None 
+        option = Option(self.root,self.exp)
+        try:
+            date_range = option.get_iv_dates_from_days_ago(self.days_ago)
+        except NoDataForContract:
+            date_range = None
+
+        if date_range is None:
+            print(f"[+] mn - No IV data for {self.exp}")
+        elif self._dt not in date_range:
+            print(f"[+] mn - No IV data for {self.exp} at {self.dt}")
+        else:
+            # Check if file already exists
+            print(f"[+] mn - Fetching for {self.root} {self.exp} - {self._dt} {self._dt}")
+
+            if not self.isFile():
+                option = Option(self.root,self.exp)
+                desired_strikes = option.get_desired_strikes(self.strike_multiple)
+
+                df_batches = pd.DataFrame([{"root":self.root, "exp":self.exp,"right":right,"strike":strike}
+                                                                    for strike in desired_strikes
+                                                                    for right in ["call","put"]])
+                
+                method, key_params = "get_list_dates_implied_volatility",[]
+                downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
+                                ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
+                df_dates = downloader.async_download_contracts()
+
+                rows =df_dates.shape[0]
+                print(f"[+] mn - Total {rows} contracts with dates in {self.exp}.")
+
+                if df_dates is not None:
+                    # Build list of args and params
+                    batcher = ExpiryBatcher(exp=self.exp,dt=self._dt,date_key="implied_volatility"
+                                            ,freq_batch='D',endpoint_params=self.endpoint_params)
+
+                    df_batches = batcher.get_dt_batches(df_dates=df_dates)
+                    if df_batches is not None:
+                        method = self.get_method()
+                        key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
+
+                        rows = df_batches.shape[0]
+                        print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")                    
+
+                        # Fetching data for method
+                        downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
+                                                    ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
+                                                    ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
+
+                        df_data = downloader.async_download_contracts()
+
+
+        return df_data
+    
+
     def get_hist_open_interest_data(self):
         df_data = None 
         option = Option(self.root,self.exp)
@@ -227,9 +290,9 @@ class ExpiryManager(AppManager):
             date_open_interest = option.get_list_dates_open_interest()
             date_range = [str(open_interest.get("open_interest")) for open_interest in date_open_interest]
         except NoDataForContract:
-            date_range = []
+            date_range = None
 
-        if len(date_range)==0 :
+        if date_range is None :
             print(f"[+] mn - No Open Interest data for {self.exp}")
         else:
             self.start_date,self.end_date = date_range[0],date_range[-1]
@@ -274,7 +337,7 @@ class ExpiryManager(AppManager):
         try:
             date_range = option.get_iv_dates_from_days_ago(self.days_ago)
         except NoDataForContract:
-            date_range = []
+            date_range = None
 
         if date_range is None :
             print(f"[+] mn - No IV data for {self.exp}")
