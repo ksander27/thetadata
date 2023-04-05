@@ -10,47 +10,45 @@ YESTERDAY = datetime.now() - timedelta(days=1)
 class Option(_Option):
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
+
+    def isIVDate(self,dt):
+        _dt = _format_date(dt)
+        date_range = self.get_iv_dates_from_days_ago()
+        if _dt in date_range:
+            return dt
+        else:
+            return False
         
     def get_iv_dates_from_days_ago(self, days_ago: Optional[int] = None) -> Optional[List[str]]:
-        if days_ago is not None:
-            if not isinstance(days_ago, int):
-                raise TypeError("[+] days_ago must be a positive integer")
-            if days_ago < 0:
-                raise ValueError("[+] days_ago must be a positive integer")
-
-        args = {"root": self.root, "exp": self.exp}
-
-        if self.strike and self.right:
-            args["strike"] = self.strike
-            args["right"] = self.right
-        elif self.strike or self.right:
+        if self.strike or self.right:
             raise OptionError("[+] We need a strike and a right")
-        else:
-            pass
-
-        _exp = datetime.strptime(self._exp, '%Y%m%d')
-        if days_ago is not None:
-            if YESTERDAY > _exp:
-                date_range = pd.date_range(end=_exp, periods=days_ago, freq='B')
-            else:
-                date_range = pd.date_range(end=YESTERDAY, periods=days_ago, freq='B')
+        if not isinstance(days_ago, int):
+            raise TypeError("[+] days_ago must be a positive integer")
+        if days_ago < 0:
+            raise ValueError("[+] days_ago must be a positive integer")
 
         try:
-            option = Option(**args)
-            date_implied_vol = option.get_list_dates_implied_volatility()
+            date_implied_vol = self.get_list_dates_implied_volatility()
 
-            if len(date_implied_vol) > 0:
-                date_implied_vol = [str(_dict.get("implied_volatility")) for _dict in date_implied_vol]
-                if days_ago is not None:
+            if not days_ago :
+                return date_implied_vol
+            else:
+
+                _exp = datetime.strptime(self._exp, '%Y%m%d')
+                if YESTERDAY > _exp:
+                    date_range = pd.date_range(end=_exp, periods=days_ago, freq='B')
+                else:
+                    date_range = pd.date_range(end=YESTERDAY, periods=days_ago, freq='B')
+
+                if len(date_implied_vol) > 0:
+                    date_implied_vol = [str(_dict.get("implied_volatility")) for _dict in date_implied_vol]
+
                     date_range = [date for date in date_range.strftime('%Y%m%d').to_list() if date in date_implied_vol]
                     print(f"[+] {len(date_range)} business days for {self.exp}")
-                else:
-                    date_range = date_implied_vol
-                return date_range
+                    return date_range
 
         except NoDataForContract:
             print(f"[+] NO IMPLIED VOL DATA FOR {self.exp} - check with thetadata")
-            return None
 
         
     def get_desired_expirations(self, min_exp_date: str, max_exp_date: str, freq_exp: str = 'monthly') -> List[str]:
