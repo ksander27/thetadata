@@ -242,7 +242,7 @@ class ExpiryManager(AppManager):
         # else:
         #     # Check if file already exists
         print(f"[+] mn - Fetching for {self.root} {self.exp} - {self._dt} {self._dt}")
-
+        self.start_date,self.end_date = self._dt,self._dt
         if not self.isFile():
             option = Option(self.root,self.exp)
             desired_strikes = option.get_desired_strikes(self.strike_multiple)
