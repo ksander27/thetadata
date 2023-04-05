@@ -27,7 +27,7 @@ def _format_date(date: str) -> str:
         # Use dateparser to parse the time
         _date = dateparser.parse(date)
         if not _date :
-            raise ValueError("Date format isn't correct and (ideally) should be YYYYMMDD")
+            raise ValueError("Date format isn't correct and (ideally) should be YYYYMMDD - currently {date}")
         else:
             return dt.datetime.strftime(_date, "%Y%m%d")
 
