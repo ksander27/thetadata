@@ -145,7 +145,7 @@ class ExpiryBatcher(BatchManager):
         df_dates[f"{self.date_key}_dt"] = pd.to_datetime(df_dates[self.date_key], format='%Y%m%d')
 
         # Filter the DataFrame for the target date
-        df_dates = df_dates[df_dates[f"{self.date_key}_dt"] == self.dt]
+        df_dates = df_dates[df_dates[f"{self.date_key}"] == self.dt]
 
         df_dates = df_dates.rename(columns={f"{self.date_key}_dt": "dt_key",
                                             self.date_key: "dt"})
