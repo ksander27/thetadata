@@ -22,7 +22,7 @@ class Option(_Option):
     def get_iv_dates_from_days_ago(self, days_ago: Optional[int] = None) -> Optional[List[str]]:
         if self.strike or self.right:
             raise OptionError("[+] We need a strike and a right")
-        if not isinstance(days_ago, int):
+        if days_ago and not isinstance(days_ago, int):
             raise TypeError("[+] days_ago must be a positive integer")
         if days_ago < 0:
             raise ValueError("[+] days_ago must be a positive integer")
