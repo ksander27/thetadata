@@ -45,9 +45,9 @@ class Option(_Option):
 
 
 
-                    date_range = [date for date in date_range.strftime('%Y%m%d').to_list() if date in date_implied_vol]
-                    print(f"[+] {len(date_range)} business days for {self.exp}")
-                    return date_range
+                date_range = [date for date in date_range.strftime('%Y%m%d').to_list() if date in date_implied_vol]
+                print(f"[+] {len(date_range)} business days for {self.exp}")
+                return date_range
 
         except NoDataForContract:
             print(f"[+] NO IMPLIED VOL DATA FOR {self.exp} - check with thetadata")
