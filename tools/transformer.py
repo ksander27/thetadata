@@ -140,7 +140,7 @@ class ExpiryBatcher(BatchManager):
         df_dates["strike"] /= 1000
 
         # Convert date columns to datetime64 format
-        df_dates[self.date_key] = df_dates[self.date_key].astype(str)
+        df_dates[self.date_key] = df_dates[self.date_key].astype(int).astype(str)
         df_dates[f"{self.date_key}_dt"] = pd.to_datetime(df_dates[self.date_key], format='%Y%m%d')
 
         # Filter the DataFrame for the target date
