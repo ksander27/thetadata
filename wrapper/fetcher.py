@@ -69,9 +69,10 @@ class AsyncFetcher():
             r.raise_for_status()
         else:
             try:
-                _ = await r.json()
+                
                 self._task_id+=1                        
                 task_id = self._get_task_id_str()
+                _ = await r.json()
 
                 contract.header = _.get("header")
                 contract.response = _.get("response")
