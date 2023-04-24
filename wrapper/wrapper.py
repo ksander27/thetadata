@@ -103,8 +103,12 @@ class MyWrapper:
         """        
 
         if not self._async:
-            _ = self.request.json()
-            self.header = _.get('header')
+            try:
+                _ = self.request.json()
+                self.header = _.get('header')
+            except rq.exceptions.JSONDecodeError:
+                print(self.request.text)
+                raise rq.exceptions.JSONDecodeError
 
         self.err_type = self.header.get('error_type')
         self.err_msg = self.header.get('error_msg')
