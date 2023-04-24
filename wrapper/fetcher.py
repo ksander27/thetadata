@@ -96,7 +96,7 @@ class AsyncFetcher():
             
             except JSONDecodeError:
                 print(f"[+] ft - Error Json formatting for params - {contract.params}")
-                print(r.text)
+                print(r.content)
                 return {"data": None, "url": None, "params": None
                         ,"task_id":task_id, "req_id":contract.req_id
                         , "latency_ms":contract.latency_ms,"err_type":contract.err_type}
