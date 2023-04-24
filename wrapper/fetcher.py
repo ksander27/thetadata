@@ -3,6 +3,7 @@ import aiohttp
 import time
 from .wrapper import NoDataForContract
 from typing import List,Dict,Union,Any
+from json import JSONDecodeError
 
 class Timer():
     def __init__(self):
@@ -88,6 +89,13 @@ class AsyncFetcher():
 
             except NoDataForContract:
                 print(f"[+] ft - No data data for contract - {contract.__str__()} - {contract.params}")
+                return {"data": None, "url": None, "params": None
+                        ,"task_id":task_id, "req_id":contract.req_id
+                        , "latency_ms":contract.latency_ms,"err_type":contract.err_type}
+            
+            except JSONDecodeError:
+                print(f"[+] ft - Error Json formatting for params - {contract.params}")
+                print(r.text)
                 return {"data": None, "url": None, "params": None
                         ,"task_id":task_id, "req_id":contract.req_id
                         , "latency_ms":contract.latency_ms,"err_type":contract.err_type}
