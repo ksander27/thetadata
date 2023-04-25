@@ -4,6 +4,15 @@ import time
 from .wrapper import NoDataForContract
 from typing import List,Dict,Union,Any
 from json import JSONDecodeError
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
 
 class Timer():
     def __init__(self):
@@ -81,7 +90,7 @@ class AsyncFetcher():
                     data = contract._parse_response()
 
                     if self._verbose:
-                        print(f"[+] ft - Id {task_id} - {contract.latency_ms} - {contract.__str__()} - {contract.params}")
+                        logging.info(f"[+] ft - Id {task_id} - {contract.latency_ms} - {contract.__str__()} - {contract.params}")
                     
                     return {"data": data, "url": contract.url, "params": contract.params
                             ,"task_id":task_id, "req_id":contract.req_id
@@ -89,20 +98,20 @@ class AsyncFetcher():
                             
 
             except NoDataForContract:
-                print(f"[+] ft - No data data for contract - {contract.__str__()} - {contract.params}")
+                logging.info(f"[+] ft - No data data for contract - {contract.__str__()} - {contract.params}")
                 return {"data": None, "url": None, "params": None
                         ,"task_id":task_id, "req_id":contract.req_id
                         , "latency_ms":contract.latency_ms,"err_type":contract.err_type}
             
             except JSONDecodeError:
-                print(f"[+] ft - Error Json formatting for params - {contract.params}")
+                logging.info(f"[+] ft - Error Json formatting for params - {contract.params}")
                 return {"data": None, "url": None, "params": None
                         ,"task_id":task_id, "req_id":contract.req_id
                         , "latency_ms":contract.latency_ms,"err_type":contract.err_type}
                         
             
             except Exception as e:
-                print(f"[+] ft - Failed to fetch data {contract.err_msg} - {contract.__str__()} - {contract.params}")
+                logging.info(f"[+] ft - Failed to fetch data {contract.err_msg} - {contract.__str__()} - {contract.params}")
                 raise e
 
     async def _fetch_batch(self, batch: List[Any]) -> List[Dict[str, Union[Any, str]]]:
@@ -137,7 +146,7 @@ class AsyncFetcher():
             results = await asyncio.gather(*tasks)
 
         elapsed_batch = timer_batch.time_elapsed()
-        print(f"[+] ft - Batch id {self._batch_id} performed in {elapsed_batch:.2f} seconds")
+        logging.info(f"[+] ft - Batch id {self._batch_id} performed in {elapsed_batch:.2f} seconds")
         return results
 
     async def fetch_all_contracts(self,contracts: List[Any]) -> List[Dict[str, Union[None, List[Any]]]]:
@@ -180,13 +189,13 @@ class AsyncFetcher():
                 self.sleep += sleep_incr
                 attempt += 1
                 if i>0:
-                    print(f"[+] ft - Timed out {attempt}/{self.max_retry} .. going to sleep for {self.sleep}sec")
+                    logging.info(f"[+] ft - Timed out {attempt}/{self.max_retry} .. going to sleep for {self.sleep}sec")
                     await asyncio.sleep(self.sleep)
         else:
-            print(f"[+] ft - Max retries reached. Giving up")
+            logging.info(f"[+] ft - Max retries reached. Giving up")
             raise asyncio.TimeoutError
         
 
         elapsed = timer.time_elapsed()
-        print(f"[+] ft - Fetching performed in {elapsed:.2f} seconds")
+        logging.info(f"[+] ft - Fetching performed in {elapsed:.2f} seconds")
         return data

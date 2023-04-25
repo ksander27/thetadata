@@ -1,4 +1,13 @@
 import pandas as pd
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
 
 
 class BatchManager():
@@ -89,14 +98,14 @@ class ExpiryBatcher(BatchManager):
         df_dates = df_dates.rename(columns={f"{self.date_key}_dt": "dt_key",
                                             self.date_key: "dt"})
 
-        print(f"[+] bt - Filtered {df_dates.shape[0]} contracts with dates in {self.exp}")
+        logging.info(f"[+] bt - Filtered {df_dates.shape[0]} contracts with dates in {self.exp}")
 
         if not df_dates.empty:
             return df_dates
         else:
             tmp = "/home/jupyter/data/pre_filter.csv"
             df_tmp.to_csv(tmp,index=False)
-            print(f"[+] bt - Expiry Batcher - all dates are filtered - file saved @ {tmp}.")
+            logging.info(f"[+] bt - Expiry Batcher - all dates are filtered - file saved @ {tmp}.")
             return None
             #raise ValueError(f"[+] bt - Expiry Batcher - all dates are filtered - file saved @ {tmp}.")
         
@@ -124,14 +133,14 @@ class ExpiryBatcher(BatchManager):
         df_dates = df_dates.rename(columns={f"{self.date_key}_dt": "dt_key",
                                             self.date_key: "dt"})
 
-        print(f"[+] bt - Filtered {df_dates.shape[0]} contracts with dates in {self.exp}")
+        logging.info(f"[+] bt - Filtered {df_dates.shape[0]} contracts with dates in {self.exp}")
 
         if not df_dates.empty:
             return df_dates
         else:
             tmpfile = f"/home/jupyter/data/pre_filter.csv"
             df_tmp.to_csv(tmpfile,index=False)
-            print(f"[+] bt - Expiry Batcher - all dates are filtered - saved at {tmpfile}")
+            logging.info(f"[+] bt - Expiry Batcher - all dates are filtered - saved at {tmpfile}")
             return None
 
     def prepare_dt(self, df_dates: pd.DataFrame, bday: bool = True) -> pd.DataFrame:
@@ -149,14 +158,14 @@ class ExpiryBatcher(BatchManager):
         df_dates = df_dates.rename(columns={f"{self.date_key}_dt": "dt_key",
                                             self.date_key: "dt"})
 
-        print(f"[+] bt - Filtered {df_dates.shape[0]} contracts with dates in {self.exp}")
+        logging.info(f"[+] bt - Filtered {df_dates.shape[0]} contracts with dates in {self.exp}")
 
         if not df_dates.empty:
             return df_dates
         else:
             tmpfile = f"/home/jupyter/data/pre_filter.csv"
             df_tmp.to_csv(tmpfile,index=False)
-            print(f"[+] bt - Expiry Batcher - all dates are filtered - saved at {tmpfile}")
+            logging.info(f"[+] bt - Expiry Batcher - all dates are filtered - saved at {tmpfile}")
             return None
             
     def get_yesterday_batches(self,df_dates,bday=True):
