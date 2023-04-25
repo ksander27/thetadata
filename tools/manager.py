@@ -8,6 +8,15 @@ import psutil
 from . import AsyncDownloaderOption,ExpiryBatcher
 from ..wrapper import Option,NoDataForContract,_format_date
 
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
 
 
 class AppManager():
@@ -34,16 +43,16 @@ class AppManager():
         for proc in psutil.process_iter(['name', 'cmdline']):
             if proc.info.get('name') == 'java':
                 self.PID_terminal = proc.pid
-                print(f"[+] Terminal is running with PID - {self.PID_terminal}")
+                logging.info(f"[+] Terminal is running with PID - {self.PID_terminal}")
                 break 
         else:
             self.PID_terminal = None
-            print('[+] Terminal is not running')
+            logging.info('[+] Terminal is not running')
         return self.PID_terminal
     
     def _stop_terminal(self):
         _ = self._get_PID_terminal()
-        print(f"[+] Stopping the terminal with PID - {self.PID_terminal}")
+        logging.info(f"[+] Stopping the terminal with PID - {self.PID_terminal}")
         subprocess.run(['kill','-15',str(self.PID_terminal)])
         _ = self._get_PID_terminal()
         return self.PID_terminal
@@ -76,26 +85,26 @@ class AppManager():
     def isFile(self):
         _ = self.get_filename()
         if os.path.exists(self.filename):
-            print(f"[+] mn - {self.filename} already exists.")
+            logging.info(f"[+] mn - {self.filename} already exists.")
             return True
         else:
             return False
     
     def isStorage(self):
         if os.path.exists(self._DIR):
-            print(f"[+] mn - {self._DIR} already exists.")
+            logging.info(f"[+] mn - {self._DIR} already exists.")
         else:
             os.makedirs(self._DIR)
-            print(f"[+] mn - Created {self._DIR}")
+            logging.info(f"[+] mn - Created {self._DIR}")
         return None
     
     def store_file(self,df_data):
         if df_data is not None:
-            print(f"[+] mn - Fetched {df_data.shape[0]} contracts with dates in {self.exp}")
+            logging.info(f"[+] mn - Fetched {df_data.shape[0]} contracts with dates in {self.exp}")
             df_data.to_csv(self.filename,index=False)
-            print(f"[+] mn - Saved {self.filename}")
+            logging.info(f"[+] mn - Saved {self.filename}")
         else:
-            print(f"[+] mn - NO DATA - Nothing to save for {self.filename}") 
+            logging.info(f"[+] mn - NO DATA - Nothing to save for {self.filename}") 
 
 
 
@@ -121,14 +130,14 @@ class ExpiryManager(AppManager):
         self.SLEEP = SLEEP
 
     def sleep(self):
-        print(f"[+] Manager going to sleep for {self.SLEEP}")
+        logging.info(f"[+] Manager going to sleep for {self.SLEEP}")
         time.sleep(self.SLEEP)
         return None
         
     def print(self):
-        print("""\n#-------------------------------------------#""")
-        print(f"""# mn - Download {self.root} - {self.exp} - {self.BATCH_SIZE} {self.freq_batch} """)
-        print("""#-------------------------------------------#\n""")
+        logging.info("""\n#-------------------------------------------#""")
+        logging.info(f"""# mn - Download {self.root} - {self.exp} - {self.BATCH_SIZE} {self.freq_batch} """)
+        logging.info("""#-------------------------------------------#\n""")
         return None
     
     def _get_dt(self):
@@ -146,7 +155,7 @@ class ExpiryManager(AppManager):
             date_range = None
 
         if date_range is None :
-            print(f"[+] mn - No IV data for {self.exp}")
+            logging.info(f"[+] mn - No IV data for {self.exp}")
         else:
             # Check if file already exists
             self.start_date,self.end_date = date_range[0],date_range[-1]
@@ -155,7 +164,7 @@ class ExpiryManager(AppManager):
                 option = Option(self.root,self.exp)
                 desired_strikes = option.get_desired_strikes(self.strike_multiple)
                 if len(desired_strikes)==0:
-                    print(f"[+] mn - No strikes for {self.root} {self.exp} - check multiples")
+                    logging.info(f"[+] mn - No strikes for {self.root} {self.exp} - check multiples")
                 else:
 
                     df_batches = pd.DataFrame([{"root":self.root,"exp":self.exp,"right":right,"strike":strike}
@@ -169,7 +178,7 @@ class ExpiryManager(AppManager):
                     df_dates = downloader.async_download_contracts()               
 
                     rows = df_dates.shape[0]
-                    print(f"[+] mn - Total {rows} contracts with dates in {self.exp}.")                    
+                    logging.info(f"[+] mn - Total {rows} contracts with dates in {self.exp}.")                    
 
                     if df_dates is not None:
                         # Build list of args and params
@@ -182,7 +191,7 @@ class ExpiryManager(AppManager):
                             key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
 
                             rows = df_batches.shape[0]
-                            print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")                    
+                            logging.info(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")                    
 
                             # Fetching data for method
                             downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
@@ -193,42 +202,6 @@ class ExpiryManager(AppManager):
 
         return df_data
     
-    def get_bulk_hist_exp_data(self):
-        df_data = None 
-
-        option = Option(self.root,self.exp)
-        try:
-            date_range = option.get_iv_dates_from_days_ago(self.days_ago)
-        except NoDataForContract:
-            date_range = None
-
-        if date_range is None:
-            print(f"[+] mn - No IV data for {self.exp}")
-        else:
-            #Check if files already exist
-            self.start_date,self.end_date = date_range[0],date_range[-1]
-            if not self.isFile():
-                # Don't need to get all dates with implied vol for each contract in exp - just do bulk_hist
-                method = self.get_method()
-                key_params = self.get_key_params()
-                batches = [{"root":self.root,"exp":self.exp,"right":"cp","strike":0
-                            ,"start_date":_date,"end_date":_date} 
-                           for _date in date_range]
-                df_batches = pd.DataFrame(batches)
-                rows = df_batches.shape[0]
-                print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}")
-
-                # Fetching data for method
-                downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
-                                                   ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
-                                                   ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
-                try:
-                    df_data = downloader.async_download_contracts()
-                except json.JSONDecodeError:
-                    print(f"[+] ERROR JSON for chain {self.root} {self.exp}")
-
-        return df_data
-    
 
     def get_hist_data_dt(self):
         df_data = None 
@@ -236,16 +209,16 @@ class ExpiryManager(AppManager):
 
         # Test if dt is in implied vol date
         if not option.isIVDate(self.dt):
-            print(f"[+] mn - NO IV date for {self.dt}")
+            logging.info(f"[+] mn - NO IV date for {self.dt}")
         else:
-            print(f"[+] mn - Fetching for {self.root} {self.exp} - {self._dt} {self._dt}")
+            logging.info(f"[+] mn - Fetching for {self.root} {self.exp} - {self._dt} {self._dt}")
             self.start_date,self.end_date = self._dt,self._dt
             if not self.isFile():
                 option = Option(self.root,self.exp)
                 desired_strikes = option.get_desired_strikes(self.strike_multiple)
 
                 if len(desired_strikes)==0:
-                    print(f"[+] mn - No strikes for {self.root} {self.exp} - check multiples")
+                    logging.info(f"[+] mn - No strikes for {self.root} {self.exp} - check multiples")
                 else:
                     df_batches = pd.DataFrame([{"root":self.root, "exp":self.exp,"right":right,"strike":strike}
                                                                         for strike in desired_strikes
@@ -257,7 +230,7 @@ class ExpiryManager(AppManager):
                     df_dates = downloader.async_download_contracts()
 
                     rows =df_dates.shape[0]
-                    print(f"[+] mn - Total {rows} contracts with dates in {self.exp}.")
+                    logging.info(f"[+] mn - Total {rows} contracts with dates in {self.exp}.")
 
                     if df_dates is not None:
                         # Build list of args and params
@@ -270,7 +243,7 @@ class ExpiryManager(AppManager):
                             key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
 
                             rows = df_batches.shape[0]
-                            print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")                    
+                            logging.info(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")                    
 
                             # Fetching data for method
                             downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
@@ -280,112 +253,4 @@ class ExpiryManager(AppManager):
                             df_data = downloader.async_download_contracts()
 
 
-        return df_data
-    
-
-    def get_hist_open_interest_data(self):
-        df_data = None 
-        option = Option(self.root,self.exp)
-        try:
-            date_open_interest = option.get_list_dates_open_interest()
-            date_range = [str(open_interest.get("open_interest")) for open_interest in date_open_interest]
-        except NoDataForContract:
-            date_range = None
-
-        if date_range is None :
-            print(f"[+] mn - No Open Interest data for {self.exp}")
-        else:
-            self.start_date,self.end_date = date_range[0],date_range[-1]
-            if not self.isFile():
-                option = Option(self.root,self.exp)
-                desired_strikes = option.get_desired_strikes(self.strike_multiple)
-                if len(desired_strikes)==0:
-                    print(f"[+] No strikes for {self.root} {self.exp} - check multiples")
-                else:
-
-                    df_batches = pd.DataFrame([{"root":self.root, "exp":self.exp,"right":right,"strike":strike}
-                                                                        for strike in desired_strikes
-                                                                        for right in ["call","put"]])
-                    
-                    method, key_params = "get_list_dates_open_interest",[]
-                    downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
-                                    ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
-                    df_dates = downloader.async_download_contracts()
-
-                    rows =df_dates.shape[0]
-                    print(f"[+] mn - Total {rows} contracts with dates in {self.exp}.")
-
-                    if df_dates is not None:
-                        batcher = ExpiryBatcher(exp=self.exp,days_ago=self.days_ago,date_key="open_interest"
-                                                ,freq_batch=self.freq_batch,endpoint_params=self.endpoint_params)
-                                                
-                        df_batches = batcher.get_batches_from_exp(df_dates=df_dates)
-                        if df_batches is not None:
-                            method = self.get_method()
-                            key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
-
-                            rows = df_batches.shape[0]
-                            print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")
-
-                            downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
-                                                        ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
-                                                        ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
-                            
-                            df_data = downloader.async_download_contracts()
-        return df_data
-    
-    def get_yesterday_data(self):
-        df_data = None
-        option = Option(self.root,self.exp)
-        try:
-            date_range = option.get_iv_dates_from_days_ago(self.days_ago)
-        except NoDataForContract:
-            date_range = None
-
-        if date_range is None :
-            print(f"[+] mn - No IV data for {self.exp}")
-        else:
-            # Check if file already exists
-            self.start_date,self.end_date = date_range[-1],date_range[-1]
-            print(f"[+] mn - Fetching for {self.root} {self.exp} - {self.start_date} {self.end_date}")
-
-            if not self.isFile():
-                option = Option(self.root,self.exp)
-                desired_strikes = option.get_desired_strikes(self.strike_multiple)
-                if len(desired_strikes)==0:
-                    print(f"[+] No strikes for {self.root} {self.exp} - check multiples")
-                else:
-
-                    df_batches = pd.DataFrame([{"root":self.root, "exp":self.exp,"right":right,"strike":strike}
-                                                                        for strike in desired_strikes
-                                                                        for right in ["call","put"]])
-                    
-                    method, key_params = "get_list_dates_implied_volatility",[]
-                    downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
-                                    ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
-                    df_dates = downloader.async_download_contracts()
-
-                    rows =df_dates.shape[0]
-                    print(f"[+] mn - Total {rows} contracts with dates in {self.exp}.")
-
-                    if df_dates is not None:
-                        # Build list of args and params
-                        batcher = ExpiryBatcher(exp=self.exp,days_ago=self.days_ago,date_key="implied_volatility"
-                                                ,freq_batch=self.freq_batch,endpoint_params=self.endpoint_params)
-
-                        df_batches = batcher.get_yesterday_batches(df_dates=df_dates)
-                        if df_batches is not None:
-                            method = self.get_method()
-                            key_params = ["start_date","end_date"] + list(self.endpoint_params.keys())
-
-                            rows = df_batches.shape[0]
-                            print(f"[+] mn - Total {int(rows/self.BATCH_SIZE)+1} batches for {self.exp}.")                    
-
-                            # Fetching data for method
-                            downloader = AsyncDownloaderOption(batches=df_batches,method=method,key_params=key_params
-                                                        ,batch_size=self.BATCH_SIZE,timeout=self.TIMEOUT
-                                                        ,max_retry=self.MAX_RETRY,sleep=self.SLEEP)
-
-                            df_data = downloader.async_download_contracts()
-
-        return df_data
+        return df_data    
