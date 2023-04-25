@@ -135,9 +135,9 @@ class ExpiryManager(AppManager):
         return None
         
     def print(self):
-        logging.info("""\n#-------------------------------------------#""")
+        logging.info("""#-------------------------------------------#""")
         logging.info(f"""# mn - Download {self.root} - {self.exp} - {self.BATCH_SIZE} {self.freq_batch} """)
-        logging.info("""#-------------------------------------------#\n""")
+        logging.info("""#-------------------------------------------#""")
         return None
     
     def _get_dt(self):
