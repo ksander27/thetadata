@@ -46,6 +46,10 @@ class MyWrapper:
     def _get_port(self):
         td_dir = os.environ["TD_DIR"]
         env_path = f"{td_dir}/.td_env"
+        print("Debug: Loading environment variables from", env_path)
+        with open(env_path) as f:
+            print(f.read())
+
         load_dotenv(env_path)
         config_id = os.environ.get("CONFIG_ID")
         return 25510 + int(config_id)
