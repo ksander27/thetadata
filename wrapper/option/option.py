@@ -43,8 +43,6 @@ class Option(_Option):
                 else:
                     date_range = pd.date_range(end=YESTERDAY, periods=days_ago, freq='B')
 
-
-
                 date_range = [date for date in date_range.strftime('%Y%m%d').to_list() if date in date_implied_vol]
                 print(f"[+] {len(date_range)} business days for {self.exp}")
                 return date_range
